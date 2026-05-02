@@ -1,0 +1,2 @@
+# Receipt-app
+RECEIPT GENERATION APP
