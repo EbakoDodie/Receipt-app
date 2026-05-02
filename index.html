@@ -1,617 +1,637 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Risiti – Receipt Builder</title>
+<title>Receipt App</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-  :root {
-    --amber: #E8A020;
-    --amber-light: #FFF3D6;
-    --amber-dark: #B87A10;
-    --green: #2D6A4F;
-    --green-light: #D8F3DC;
-    --cream: #FDFBF5;
-    --ink: #1A1208;
-    --muted: #7A6A50;
-    --border: #E8DCC8;
-    --white: #FFFFFF;
-    --danger: #C0392B;
-    --radius: 14px;
-    --shadow: 0 4px 24px rgba(26,18,8,0.10);
-  }
+:root{
+  --amber:#E8A020;--amber-light:#FFF3D6;--amber-dark:#B87A10;
+  --green:#2D6A4F;--green-light:#D8F3DC;
+  --cream:#FDFBF5;--ink:#1A1208;--muted:#7A6A50;
+  --border:#E8DCC8;--white:#FFFFFF;--danger:#C0392B;
+  --radius:14px;--shadow:0 4px 24px rgba(26,18,8,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh}
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* LOGIN */
+#loginScreen{
+  position:fixed;inset:0;z-index:9999;background:var(--green);
+  display:flex;align-items:center;justify-content:center;padding:24px;
+}
+.login-box{
+  background:#fff;border-radius:20px;padding:40px 36px;
+  max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;
+}
+.login-logo{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--green);margin-bottom:4px}
+.login-sub{font-size:.8rem;color:var(--muted);margin-bottom:28px}
+.login-lbl{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;text-align:left;margin-bottom:6px}
+.login-input{
+  width:100%;padding:13px 16px;border:2px solid var(--border);border-radius:10px;
+  font-size:1.1rem;font-family:'DM Sans',sans-serif;color:var(--ink);
+  background:var(--cream);text-align:center;letter-spacing:4px;
+  outline:none;transition:border .2s,box-shadow .2s;margin-bottom:16px;
+}
+.login-input:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(232,160,32,.18)}
+.login-btn{
+  width:100%;padding:13px;background:var(--green);color:#fff;
+  border:none;border-radius:10px;font-family:'DM Sans',sans-serif;
+  font-size:1rem;font-weight:700;cursor:pointer;transition:background .2s;
+}
+.login-btn:hover{background:var(--amber-dark)}
+.login-err{color:var(--danger);font-size:.82rem;margin-top:10px;min-height:20px}
+.login-hint{font-size:.72rem;color:var(--muted);margin-top:18px;line-height:1.6}
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--cream);
-    color: var(--ink);
-    min-height: 100vh;
-  }
+/* TOPBAR */
+.topbar{
+  background:var(--green);color:#fff;padding:13px 22px;
+  display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 12px rgba(0,0,0,.18);
+}
+.topbar-logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;letter-spacing:1px;color:var(--amber)}
+.topbar-sub{font-size:.72rem;color:rgba(255,255,255,.6);font-weight:300;margin-left:4px;flex:1}
+.topbar-right{display:flex;gap:8px;align-items:center;margin-left:auto}
+.lang-btn{
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+  color:#fff;padding:5px 14px;border-radius:20px;cursor:pointer;
+  font-size:.78rem;font-weight:600;font-family:'DM Sans',sans-serif;transition:background .15s;
+}
+.lang-btn.active,.lang-btn:hover{background:var(--amber);color:var(--ink);border-color:var(--amber)}
+.logout-btn{
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  color:rgba(255,255,255,.75);padding:5px 10px;border-radius:8px;cursor:pointer;
+  font-size:.72rem;font-family:'DM Sans',sans-serif;transition:background .15s;
+}
+.logout-btn:hover{background:rgba(200,0,0,.25);color:#fff}
 
-  /* TOP BAR */
-  .topbar {
-    background: var(--green);
-    color: var(--white);
-    padding: 14px 28px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
-  }
-  .topbar-logo {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5rem;
-    font-weight: 900;
-    letter-spacing: 1px;
-    color: var(--amber);
-  }
-  .topbar-sub { font-size: 0.75rem; color: rgba(255,255,255,0.65); font-weight: 300; margin-left: 4px; }
+/* LAYOUT */
+.layout{max-width:1100px;margin:0 auto;padding:28px 18px 60px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}}
 
-  /* MAIN LAYOUT */
-  .layout {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 32px 20px 60px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 28px;
-  }
-  @media (max-width: 800px) {
-    .layout { grid-template-columns: 1fr; }
-  }
+/* CARDS */
+.card{background:#fff;border-radius:var(--radius);border:1.5px solid var(--border);box-shadow:var(--shadow);padding:22px;margin-bottom:18px}
+.card-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--green);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title .icon{width:28px;height:28px;background:var(--green-light);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.9rem}
 
-  /* CARDS */
-  .card {
-    background: var(--white);
-    border-radius: var(--radius);
-    border: 1.5px solid var(--border);
-    box-shadow: var(--shadow);
-    padding: 24px;
-  }
-  .card-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--green);
-    margin-bottom: 18px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .card-title .icon {
-    width: 30px; height: 30px;
-    background: var(--green-light);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1rem;
-  }
+/* FORM */
+label{font-size:.76rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px}
+input[type="text"],input[type="number"],textarea{
+  width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:9px;
+  font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--ink);
+  background:var(--cream);transition:border .2s,box-shadow .2s;outline:none;
+}
+input:focus,textarea:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(232,160,32,.15)}
+textarea{resize:vertical;min-height:62px}
+.field{margin-bottom:12px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-  /* FORM ELEMENTS */
-  label { font-size: 0.78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 5px; }
-  input[type="text"], input[type="number"], input[type="email"], textarea, select {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 9px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    color: var(--ink);
-    background: var(--cream);
-    transition: border 0.2s, box-shadow 0.2s;
-    outline: none;
-  }
-  input:focus, textarea:focus, select:focus {
-    border-color: var(--amber);
-    box-shadow: 0 0 0 3px rgba(232,160,32,0.15);
-  }
-  textarea { resize: vertical; min-height: 68px; }
-  .field { margin-bottom: 14px; }
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .row3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; }
+/* LOGO UPLOAD */
+.logo-zone{
+  border:2.5px dashed var(--border);border-radius:12px;padding:20px;
+  text-align:center;background:var(--amber-light);cursor:pointer;
+  transition:border-color .2s,background .2s;position:relative;
+}
+.logo-zone:hover{border-color:var(--amber);background:#fff8e8}
+#logoImg{max-width:76px;max-height:76px;border-radius:10px;object-fit:contain;display:none;margin:0 auto 8px;border:2px solid var(--border)}
+.up-icon{font-size:2rem;margin-bottom:6px}
+.up-text{font-size:.8rem;color:var(--muted)}
+.up-ok{font-size:.8rem;color:var(--green);font-weight:600;display:none}
+.remove-logo-btn{
+  display:none;margin-top:8px;background:var(--danger);color:#fff;
+  border:none;border-radius:7px;padding:4px 12px;font-size:.75rem;cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+}
 
-  /* LOGO UPLOAD */
-  .logo-upload {
-    border: 2px dashed var(--border);
-    border-radius: var(--radius);
-    padding: 18px;
-    text-align: center;
-    cursor: pointer;
-    background: var(--amber-light);
-    transition: border-color 0.2s;
-    position: relative;
-  }
-  .logo-upload:hover { border-color: var(--amber); }
-  .logo-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-  .logo-preview {
-    max-width: 80px; max-height: 80px;
-    border-radius: 8px;
-    object-fit: contain;
-    display: none;
-    margin: 0 auto 8px;
-  }
-  .logo-upload-text { font-size: 0.82rem; color: var(--muted); }
-  .logo-upload-icon { font-size: 2rem; margin-bottom: 6px; }
+/* CURRENCY */
+.cur-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.cur-pill{
+  border:1.5px solid var(--border);border-radius:20px;padding:5px 12px;
+  font-size:.78rem;font-weight:600;cursor:pointer;background:var(--cream);
+  color:var(--muted);transition:all .15s;font-family:'DM Sans',sans-serif;
+}
+.cur-pill.active{background:var(--green);color:#fff;border-color:var(--green)}
 
-  /* ITEMS TABLE */
-  .items-header {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 40px;
-    gap: 8px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 0 0 8px;
-    border-bottom: 1.5px solid var(--border);
-    margin-bottom: 10px;
-  }
-  .item-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 40px;
-    gap: 8px;
-    align-items: center;
-    margin-bottom: 8px;
-    animation: slideIn 0.2s ease;
-  }
-  @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
-  .item-row input { margin: 0; }
-  .btn-remove {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #ccc;
-    font-size: 1.2rem;
-    padding: 4px;
-    border-radius: 6px;
-    transition: color 0.15s, background 0.15s;
-    line-height: 1;
-  }
-  .btn-remove:hover { color: var(--danger); background: #ffeaea; }
+/* ITEMS */
+.items-hdr{display:grid;grid-template-columns:2fr 1fr 1fr 34px;gap:6px;font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding-bottom:8px;border-bottom:1.5px solid var(--border);margin-bottom:8px}
+.item-row{display:grid;grid-template-columns:2fr 1fr 1fr 34px;gap:6px;align-items:center;margin-bottom:6px;animation:fadeIn .18s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.item-row input{margin:0}
+.btn-del{background:none;border:none;cursor:pointer;color:#ccc;font-size:1.1rem;padding:4px;border-radius:6px;transition:color .15s,background .15s;line-height:1}
+.btn-del:hover{color:var(--danger);background:#ffeaea}
 
-  /* BUTTONS */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 10px 18px;
-    border-radius: 9px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.88rem;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: all 0.18s;
-  }
-  .btn-outline {
-    background: transparent;
-    border: 1.5px solid var(--green);
-    color: var(--green);
-  }
-  .btn-outline:hover { background: var(--green-light); }
-  .btn-primary {
-    background: var(--green);
-    color: var(--white);
-  }
-  .btn-primary:hover { background: var(--amber-dark); }
-  .btn-amber {
-    background: var(--amber);
-    color: var(--ink);
-    font-weight: 700;
-    font-size: 0.95rem;
-    padding: 13px 28px;
-    width: 100%;
-    justify-content: center;
-    border-radius: 12px;
-    letter-spacing: 0.3px;
-  }
-  .btn-amber:hover { background: var(--amber-dark); color: var(--white); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(232,160,32,0.35); }
-  .btn-amber:active { transform: translateY(0); }
-  .btn-group { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.86rem;font-weight:600;border:none;cursor:pointer;transition:all .18s}
+.btn-outline{background:transparent;border:1.5px solid var(--green);color:var(--green)}
+.btn-outline:hover{background:var(--green-light)}
+.btn-amber{background:var(--amber);color:var(--ink);font-weight:700;font-size:.95rem;padding:13px 28px;width:100%;justify-content:center;border-radius:12px}
+.btn-amber:hover{background:var(--amber-dark);color:#fff;transform:translateY(-1px);box-shadow:0 6px 20px rgba(232,160,32,.35)}
+.btn-amber:active{transform:translateY(0)}
 
-  /* TOTALS */
-  .totals-box {
-    background: var(--amber-light);
-    border-radius: 10px;
-    padding: 16px 18px;
-    margin-top: 16px;
-  }
-  .total-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 5px 0;
-    font-size: 0.9rem;
-  }
-  .total-row.grand {
-    border-top: 2px solid var(--amber);
-    margin-top: 8px;
-    padding-top: 10px;
-    font-family: 'Playfair Display', serif;
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--green);
-  }
-  .total-label { color: var(--muted); }
-  .total-value { font-weight: 600; }
+/* TOTALS */
+.totals-box{background:var(--amber-light);border-radius:10px;padding:14px 16px;margin-top:14px}
+.tot-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:.9rem}
+.tot-row.grand{border-top:2px solid var(--amber);margin-top:8px;padding-top:10px;font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--green)}
+.disc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 
-  /* PREVIEW PANEL */
-  .preview-panel { position: relative; }
-  .preview-sticky { position: sticky; top: 80px; }
+/* PREVIEW */
+.preview-panel{position:relative}
+.preview-sticky{position:sticky;top:72px}
+.preview-lbl{font-family:'Playfair Display',serif;font-size:.9rem;font-weight:700;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.pulse{width:8px;height:8px;background:var(--amber);border-radius:50%;display:inline-block;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-  /* RECEIPT PREVIEW */
-  .receipt {
-    background: var(--white);
-    border-radius: var(--radius);
-    border: 1.5px solid var(--border);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-    font-size: 0.85rem;
-  }
-  .receipt-header {
-    background: var(--green);
-    color: var(--white);
-    padding: 22px 24px 18px;
-    text-align: center;
-  }
-  .receipt-logo {
-    width: 60px; height: 60px;
-    border-radius: 50%;
-    object-fit: contain;
-    background: white;
-    margin: 0 auto 10px;
-    display: none;
-    border: 3px solid rgba(255,255,255,0.3);
-  }
-  .receipt-biz-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.3rem;
-    font-weight: 900;
-    letter-spacing: 0.5px;
-  }
-  .receipt-tagline { font-size: 0.75rem; color: rgba(255,255,255,0.7); margin-top: 2px; }
-  .receipt-body { padding: 20px 24px; }
-  .receipt-meta {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 16px;
-    padding-bottom: 16px;
-    border-bottom: 1.5px dashed var(--border);
-  }
-  .receipt-meta-item .label { font-size: 0.68rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-  .receipt-meta-item .value { font-size: 0.88rem; font-weight: 500; color: var(--ink); margin-top: 2px; }
-  .receipt-items-hdr {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 6px;
-    font-size: 0.68rem;
-    font-weight: 700;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 1.5px solid var(--border);
-    padding-bottom: 6px;
-    margin-bottom: 8px;
-  }
-  .receipt-item {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 6px;
-    padding: 5px 0;
-    font-size: 0.85rem;
-    border-bottom: 1px solid #f0ebe0;
-  }
-  .receipt-item .name { font-weight: 500; }
-  .receipt-totals {
-    margin-top: 14px;
-    padding-top: 10px;
-  }
-  .r-total-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 3px 0;
-    font-size: 0.85rem;
-    color: var(--muted);
-  }
-  .r-total-row.grand {
-    background: var(--green);
-    color: var(--white);
-    border-radius: 8px;
-    padding: 10px 14px;
-    margin-top: 8px;
-    font-family: 'Playfair Display', serif;
-    font-size: 1rem;
-    font-weight: 700;
-  }
-  .receipt-footer {
-    background: var(--amber-light);
-    padding: 14px 24px;
-    text-align: center;
-    font-size: 0.75rem;
-    color: var(--muted);
-    border-top: 1.5px dashed var(--border);
-  }
-  .receipt-footer strong { color: var(--green); }
+/* RECEIPT PREVIEW */
+.receipt{background:#fff;border-radius:var(--radius);border:1.5px solid var(--border);box-shadow:var(--shadow);overflow:hidden;font-size:.82rem}
+.r-header{background:var(--green);color:#fff;padding:18px 22px 14px;text-align:center}
+.r-logo{width:54px;height:54px;border-radius:50%;object-fit:contain;background:#fff;margin:0 auto 8px;display:none;border:3px solid rgba(255,255,255,.3)}
+.r-biz{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900}
+.r-tag{font-size:.7rem;color:rgba(255,255,255,.65);margin-top:2px}
+.r-num{font-size:.67rem;background:rgba(255,255,255,.14);display:inline-block;padding:2px 10px;border-radius:20px;margin-top:7px}
+.r-body{padding:16px 20px}
+.r-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;padding-bottom:14px;border-bottom:1.5px dashed var(--border)}
+.r-meta-item .rl{font-size:.62rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.r-meta-item .rv{font-size:.82rem;font-weight:500;color:var(--ink);margin-top:2px}
+.r-items-hdr{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:4px;font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1.5px solid var(--border);padding-bottom:5px;margin-bottom:6px}
+.r-item{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:4px;padding:4px 0;font-size:.79rem;border-bottom:1px solid #f0ebe0}
+.r-totals{margin-top:12px;padding-top:8px}
+.rt-row{display:flex;justify-content:space-between;padding:3px 0;font-size:.8rem;color:var(--muted)}
+.rt-row.grand{background:var(--green);color:#fff;border-radius:7px;padding:8px 12px;margin-top:7px;font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700}
+.r-footer{background:var(--amber-light);padding:12px 20px;text-align:center;font-size:.72rem;color:var(--muted);border-top:1.5px dashed var(--border)}
+.badge{display:inline-block;background:var(--green-light);color:var(--green);font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:6px;vertical-align:middle}
 
-  /* BADGE */
-  .badge {
-    display: inline-block;
-    background: var(--green-light);
-    color: var(--green);
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 3px 9px;
-    border-radius: 20px;
-    margin-left: 8px;
-    vertical-align: middle;
-  }
-
-  /* DISCOUNT */
-  .discount-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 14px;
-  }
-  .discount-row .field { margin: 0; flex: 1; }
-
-  /* CURRENCY SELECT */
-  .currency-pill {
-    display: inline-flex;
-    gap: 0;
-    border: 1.5px solid var(--border);
-    border-radius: 9px;
-    overflow: hidden;
-    margin-bottom: 14px;
-  }
-  .currency-pill button {
-    background: none;
-    border: none;
-    padding: 7px 13px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.82rem;
-    font-weight: 600;
-    cursor: pointer;
-    color: var(--muted);
-    transition: all 0.15s;
-  }
-  .currency-pill button.active {
-    background: var(--green);
-    color: var(--white);
-  }
-
-  /* RECEIPT NUMBER */
-  .receipt-num {
-    font-size: 0.72rem;
-    background: rgba(255,255,255,0.15);
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 20px;
-    margin-top: 8px;
-    letter-spacing: 0.5px;
-  }
-
-  /* PRINT */
-  @media print {
-    body { background: white; }
-    .layout { grid-template-columns: 1fr; padding: 0; }
-    .left-col { display: none; }
-    .preview-sticky { position: static; }
-    .receipt { box-shadow: none; border: none; }
-    .no-print { display: none !important; }
-    .topbar { display: none; }
-  }
+@media print{
+  body{background:#fff}
+  .layout{grid-template-columns:1fr;padding:0}
+  .left-col,.topbar,.no-print{display:none}
+  .preview-sticky{position:static}
+  .receipt{box-shadow:none;border:none}
+}
 </style>
 </head>
 <body>
 
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">🧾 Receipt App</div>
+    <div class="login-sub" id="loginSub">Receipt Builder for African Businesses</div>
+    <label class="login-lbl" id="loginLbl">Enter Your Secret Access Code</label>
+    <input class="login-input" type="password" id="loginInput" maxlength="30" placeholder="••••••••" autocomplete="off"/>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Unlock →</button>
+    <div class="login-err" id="loginErr"></div>
+    <div class="login-hint" id="loginHint">🔒 This app is private. Enter your unique access code to continue. Once logged in on this device, you won't need to enter the code again.</div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="appShell" style="display:none">
+
 <div class="topbar">
-  <div class="topbar-logo">Risiti</div>
-  <span class="topbar-sub">Receipt Builder for African Businesses</span>
+  <div class="topbar-logo">🧾 Receipt App</div>
+  <div class="topbar-sub" id="topSub">Receipt Builder for African Businesses</div>
+  <div class="topbar-right">
+    <button class="lang-btn active" id="btnEN" onclick="setLang('en',this)">EN</button>
+    <button class="lang-btn" id="btnFR" onclick="setLang('fr',this)">FR</button>
+    <button class="logout-btn" onclick="doLogout()">🔓 <span id="logoutTxt">Logout</span></button>
+  </div>
 </div>
 
 <div class="layout">
 
-  <!-- LEFT: FORM -->
+  <!-- LEFT COLUMN -->
   <div class="left-col">
 
-    <!-- Business Info -->
-    <div class="card" style="margin-bottom:20px">
-      <div class="card-title"><span class="icon">🏪</span> Your Business</div>
+    <!-- Business Card -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🏪</span> <span id="t_bizTitle">Your Business</span></div>
       <div class="field">
-        <label>Business Name</label>
-        <input type="text" id="bizName" placeholder="e.g. Amara Fabrics & Co." oninput="updatePreview()"/>
+        <label id="t_bizName">Business Name</label>
+        <input type="text" id="bizName" oninput="updatePreview()"/>
       </div>
       <div class="field">
-        <label>Tagline / Slogan (optional)</label>
-        <input type="text" id="tagline" placeholder="e.g. Quality you can trust" oninput="updatePreview()"/>
+        <label id="t_tagline">Tagline / Slogan (optional)</label>
+        <input type="text" id="tagline" oninput="updatePreview()"/>
       </div>
+
+      <!-- LOGO UPLOAD -->
       <div class="field">
-        <label>Business Logo</label>
-        <div class="logo-upload" id="logoUpload">
-          <input type="file" accept="image/*" onchange="handleLogo(event)"/>
-          <img id="logoPreview" class="logo-preview" src="" alt="Logo"/>
-          <div id="logoIcon" class="logo-upload-icon">🖼️</div>
-          <div class="logo-upload-text" id="logoText">Tap to upload your logo</div>
+        <label id="t_logoLbl">Business Logo</label>
+        <div class="logo-zone" id="logoZone" onclick="document.getElementById('logoFile').click()">
+          <img id="logoImg" src="" alt="logo"/>
+          <div id="upIcon" class="up-icon">🖼️</div>
+          <div id="upText" class="up-text">Tap to upload your logo</div>
+          <div id="upOk" class="up-ok">✓ Logo uploaded — click to change</div>
+          <button class="remove-logo-btn" id="removeBtn" onclick="removeLogo(event)">✕ Remove</button>
         </div>
+        <input type="file" id="logoFile" accept="image/*" style="display:none" onchange="handleLogo(event)"/>
       </div>
+
+      <!-- CURRENCY -->
       <div class="field">
-        <label>Currency</label>
-        <div class="currency-pill" id="currencyPill">
-          <button class="active" onclick="setCurrency('₦','NGN',this)">₦ NGN</button>
-          <button onclick="setCurrency('KSh','KES',this)">KSh KES</button>
-          <button onclick="setCurrency('GH₵','GHS',this)">GH₵ GHS</button>
-          <button onclick="setCurrency('R','ZAR',this)">R ZAR</button>
-          <button onclick="setCurrency('UGX','UGX',this)">UGX</button>
-          <button onclick="setCurrency('$','USD',this)">$ USD</button>
+        <label id="t_currency">Currency</label>
+        <div class="cur-wrap">
+          <button class="cur-pill active" onclick="setCur('₦','NGN',this)">₦ NGN</button>
+          <button class="cur-pill" onclick="setCur('KSh ','KES',this)">KSh KES</button>
+          <button class="cur-pill" onclick="setCur('GH₵ ','GHS',this)">GH₵ GHS</button>
+          <button class="cur-pill" onclick="setCur('FCFA ','XOF',this)">FCFA CFA</button>
+          <button class="cur-pill" onclick="setCur('R ','ZAR',this)">R ZAR</button>
+          <button class="cur-pill" onclick="setCur('UGX ','UGX',this)">UGX</button>
+          <button class="cur-pill" onclick="setCur('ETB ','ETB',this)">ETB</button>
+          <button class="cur-pill" onclick="setCur('$ ','USD',this)">$ USD</button>
         </div>
       </div>
     </div>
 
-    <!-- Client Info -->
-    <div class="card" style="margin-bottom:20px">
-      <div class="card-title"><span class="icon">👤</span> Client Details</div>
-      <div class="row">
+    <!-- Client Card -->
+    <div class="card">
+      <div class="card-title"><span class="icon">👤</span> <span id="t_clientTitle">Client Details</span></div>
+      <div class="row2">
         <div class="field">
-          <label>Client Name</label>
-          <input type="text" id="clientName" placeholder="Full name" oninput="updatePreview()"/>
+          <label id="t_clientName">Client Name</label>
+          <input type="text" id="clientName" oninput="updatePreview()"/>
         </div>
         <div class="field">
-          <label>Phone / Email</label>
-          <input type="text" id="clientContact" placeholder="Phone or email" oninput="updatePreview()"/>
+          <label id="t_clientContact">Phone / Email</label>
+          <input type="text" id="clientContact" oninput="updatePreview()"/>
         </div>
       </div>
       <div class="field">
-        <label>Client Address</label>
-        <textarea id="clientAddress" placeholder="Street, City, Country" rows="2" oninput="updatePreview()"></textarea>
+        <label id="t_clientAddr">Client Address</label>
+        <textarea id="clientAddr" rows="2" oninput="updatePreview()"></textarea>
       </div>
     </div>
 
-    <!-- Items -->
-    <div class="card" style="margin-bottom:20px">
-      <div class="card-title"><span class="icon">🛒</span> Items <span class="badge" id="itemCount">0</span></div>
-      <div class="items-header">
-        <div>Item / Description</div>
-        <div>Qty</div>
-        <div>Unit Price</div>
+    <!-- Items Card -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🛒</span> <span id="t_items">Items</span> <span class="badge" id="itemBadge">0</span></div>
+      <div class="items-hdr">
+        <div id="t_colItem">Item</div>
+        <div id="t_colQty">Qty</div>
+        <div id="t_colPrice">Unit Price</div>
         <div></div>
       </div>
       <div id="itemsList"></div>
-      <div class="btn-group">
-        <button class="btn btn-outline" onclick="addItem()">＋ Add Item</button>
+      <div style="margin-top:10px">
+        <button class="btn btn-outline" onclick="addItem()">＋ <span id="t_addItem">Add Item</span></button>
       </div>
 
       <!-- Discount -->
-      <div style="margin-top:18px; padding-top:14px; border-top:1.5px dashed var(--border)">
-        <div class="card-title" style="font-size:0.95rem; margin-bottom:12px;"><span class="icon">🏷️</span> Discount</div>
-        <div class="discount-row">
+      <div style="margin-top:16px;padding-top:14px;border-top:1.5px dashed var(--border)">
+        <div class="card-title" style="font-size:.92rem;margin-bottom:10px"><span class="icon">🏷️</span> <span id="t_discount">Discount</span></div>
+        <div class="disc-grid">
           <div class="field">
-            <label>Discount (%)</label>
-            <input type="number" id="discountPct" min="0" max="100" placeholder="0" oninput="updatePreview()"/>
+            <label id="t_discPct">Discount (%)</label>
+            <input type="number" id="discPct" min="0" max="100" placeholder="0" oninput="updatePreview()"/>
           </div>
           <div class="field">
-            <label>Or Fixed Amount</label>
-            <input type="number" id="discountFixed" min="0" placeholder="0.00" oninput="updatePreview()"/>
+            <label id="t_discFixed">Fixed Amount</label>
+            <input type="number" id="discFixed" min="0" placeholder="0.00" oninput="updatePreview()"/>
           </div>
         </div>
       </div>
 
-      <!-- Totals Summary -->
-      <div class="totals-box" id="totalsBox">
-        <div class="total-row"><span class="total-label">Subtotal</span><span class="total-value" id="tSubtotal">—</span></div>
-        <div class="total-row"><span class="total-label">Discount</span><span class="total-value" id="tDiscount" style="color:var(--danger)">—</span></div>
-        <div class="total-row grand"><span>TOTAL DUE</span><span id="tTotal">—</span></div>
+      <div class="totals-box">
+        <div class="tot-row"><span style="color:var(--muted)" id="t_subtotal">Subtotal</span><span id="tSub">—</span></div>
+        <div class="tot-row"><span style="color:var(--muted)" id="t_discLbl">Discount</span><span id="tDisc" style="color:var(--danger)">—</span></div>
+        <div class="tot-row grand"><span id="t_totalDue">TOTAL DUE</span><span id="tTotal">—</span></div>
       </div>
     </div>
 
-    <!-- Notes -->
-    <div class="card" style="margin-bottom:20px">
-      <div class="card-title"><span class="icon">📝</span> Receipt Notes</div>
+    <!-- Notes Card -->
+    <div class="card">
+      <div class="card-title"><span class="icon">📝</span> <span id="t_notes">Notes</span></div>
       <div class="field">
-        <label>Note / Thank you message</label>
-        <textarea id="receiptNote" placeholder="e.g. Thank you for your business! Payment due within 7 days." rows="2" oninput="updatePreview()"></textarea>
+        <label id="t_noteLbl">Thank-you message</label>
+        <textarea id="receiptNote" rows="2" oninput="updatePreview()"></textarea>
       </div>
     </div>
 
-    <!-- Actions -->
-    <button class="btn btn-amber no-print" onclick="generatePDF()">
-      🖨️ &nbsp; Download PDF Receipt
-    </button>
-    <p style="font-size:0.78rem; color:var(--muted); margin-top:10px; text-align:center;">You can also Print directly using <strong>Ctrl+P / Cmd+P</strong></p>
+    <button class="btn btn-amber no-print" onclick="generatePDF()">🖨️ &nbsp;<span id="t_dlPDF">Download PDF Receipt</span></button>
+    <p style="font-size:.75rem;color:var(--muted);margin-top:10px;text-align:center" id="t_printTip">You can also Print with Ctrl+P / Cmd+P</p>
 
   </div>
 
-  <!-- RIGHT: PREVIEW -->
+  <!-- RIGHT: LIVE PREVIEW -->
   <div class="preview-panel">
     <div class="preview-sticky">
-      <div style="font-family:'Playfair Display',serif; font-size:0.95rem; font-weight:700; color:var(--muted); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
-        <span>Live Preview</span>
-        <span style="width:8px;height:8px;background:var(--amber);border-radius:50%;display:inline-block;animation:pulse 1.5s infinite;"></span>
-      </div>
-      <style>@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}</style>
-      <div class="receipt" id="receiptPreview">
-        <div class="receipt-header">
-          <img id="prevLogo" class="receipt-logo" src="" alt=""/>
-          <div class="receipt-biz-name" id="prevBizName">Your Business Name</div>
-          <div class="receipt-tagline" id="prevTagline"></div>
-          <div class="receipt-num" id="prevReceiptNum">Receipt #0001</div>
+      <div class="preview-lbl"><span id="t_preview">Live Preview</span> <span class="pulse"></span></div>
+      <div class="receipt">
+        <div class="r-header">
+          <img id="pLogo" class="r-logo" src="" alt=""/>
+          <div class="r-biz" id="pBiz">Your Business Name</div>
+          <div class="r-tag" id="pTag"></div>
+          <div class="r-num" id="pNum">Receipt #0001</div>
         </div>
-        <div class="receipt-body">
-          <div class="receipt-meta">
-            <div class="receipt-meta-item">
-              <div class="label">Client</div>
-              <div class="value" id="prevClient">—</div>
+        <div class="r-body">
+          <div class="r-meta">
+            <div class="r-meta-item">
+              <div class="rl" id="t_pClient">Client</div>
+              <div class="rv" id="pClient">—</div>
             </div>
-            <div class="receipt-meta-item">
-              <div class="label">Date</div>
-              <div class="value" id="prevDate">—</div>
+            <div class="r-meta-item">
+              <div class="rl" id="t_pDate">Date</div>
+              <div class="rv" id="pDate">—</div>
             </div>
-            <div class="receipt-meta-item" style="grid-column:span 2">
-              <div class="label">Address</div>
-              <div class="value" id="prevAddress">—</div>
+            <div class="r-meta-item" style="grid-column:span 2">
+              <div class="rl" id="t_pAddr">Address</div>
+              <div class="rv" id="pAddr">—</div>
             </div>
           </div>
-          <div class="receipt-items-hdr">
-            <div>Item</div><div>Qty</div><div>Unit</div><div>Total</div>
+          <div class="r-items-hdr">
+            <div id="t_phItem">Item</div>
+            <div id="t_phQty">Qty</div>
+            <div id="t_phUnit">Unit Price</div>
+            <div id="t_phTotal">Total</div>
           </div>
-          <div id="prevItems"></div>
-          <div class="receipt-totals">
-            <div class="r-total-row"><span>Subtotal</span><span id="prevSubtotal">—</span></div>
-            <div class="r-total-row" id="prevDiscountRow" style="color:var(--danger)"><span>Discount</span><span id="prevDiscount">—</span></div>
-            <div class="r-total-row grand"><span>TOTAL DUE</span><span id="prevTotal">—</span></div>
+          <div id="pItems"></div>
+          <div class="r-totals">
+            <div class="rt-row"><span id="t_pSub">Subtotal</span><span id="pSub">—</span></div>
+            <div class="rt-row" id="pDiscRow" style="color:var(--danger);display:none">
+              <span id="t_pDisc">Discount</span><span id="pDisc">—</span>
+            </div>
+            <div class="rt-row grand"><span id="t_pTotal">TOTAL DUE</span><span id="pTotal">—</span></div>
           </div>
         </div>
-        <div class="receipt-footer">
-          <div id="prevNote">Thank you for your business! 🌍</div>
-          <div style="margin-top:6px; font-size:0.7rem; color:#aaa;">Powered by <strong>Risiti</strong></div>
+        <div class="r-footer">
+          <div id="pNote">Thank you for your business! 🌍</div>
+          <div style="margin-top:5px;font-size:.65rem;color:#bbb">Receipt App</div>
         </div>
       </div>
     </div>
   </div>
 
 </div>
+</div>
 
 <script>
-let currency = '₦';
-let logoDataURL = null;
-let items = [];
-let receiptCounter = parseInt(localStorage.getItem('risiti_count') || '1');
+// ─────────────────────────────────────
+// SECRET CODE — change this to your own
+// ─────────────────────────────────────
+const SECRET = 'RECEIPT2024';
 
-function setCurrency(sym, code, btn) {
-  currency = sym;
-  document.querySelectorAll('.currency-pill button').forEach(b => b.classList.remove('active'));
+// ── State
+let curSymbol = '₦';
+let curCode = 'NGN';
+let logoData = null;
+let items = [];
+let lang = localStorage.getItem('ra_lang') || 'en';
+let recNum = parseInt(localStorage.getItem('ra_num') || '1');
+
+// ── Translations
+const T = {
+  en: {
+    bizTitle:'Your Business', bizName:'Business Name', bizNamePh:'e.g. Amara Fabrics & Co.',
+    tagline:'Tagline / Slogan (optional)', taglinePh:'e.g. Quality you can trust',
+    logoLbl:'Business Logo', upText:'Tap to upload your logo',
+    upOk:'✓ Logo uploaded — click to change', removeLogo:'✕ Remove',
+    currency:'Currency',
+    clientTitle:'Client Details', clientName:'Client Name', clientNamePh:'Full name',
+    clientContact:'Phone / Email', clientContactPh:'Phone or email',
+    clientAddr:'Client Address', clientAddrPh:'Street, City, Country',
+    items:'Items', colItem:'Item', colQty:'Qty', colPrice:'Unit Price',
+    addItem:'Add Item', itemPh:'Item description',
+    discount:'Discount', discPct:'Discount (%)', discFixed:'Fixed Amount',
+    subtotal:'Subtotal', discLbl:'Discount', totalDue:'TOTAL DUE',
+    notes:'Notes', noteLbl:'Thank-you message', notePh:'e.g. Thank you! Payment due within 7 days.',
+    dlPDF:'Download PDF Receipt', printTip:'You can also Print with Ctrl+P / Cmd+P',
+    preview:'Live Preview',
+    pClient:'Client', pDate:'Date', pAddr:'Address',
+    phItem:'Item', phQty:'Qty', phUnit:'Unit Price', phTotal:'Total',
+    pSub:'Subtotal', pDisc:'Discount', pTotal:'TOTAL DUE',
+    topSub:'Receipt Builder for African Businesses',
+    logoutTxt:'Logout',
+    loginSub:'Receipt Builder for African Businesses',
+    loginLbl:'Enter Your Secret Access Code',
+    loginHint:'🔒 This app is private. Enter your unique access code to continue. Once logged in on this device, you won\'t need to enter the code again.',
+    loginBtn:'Unlock →',
+    loginErr:'❌ Incorrect code. Please try again.',
+    thankYou:'Thank you for your business! 🌍',
+    unnamed:'(unnamed)',
+    logoutConfirm:'Are you sure you want to log out?',
+  },
+  fr: {
+    bizTitle:'Votre Entreprise', bizName:'Nom de l\'entreprise', bizNamePh:'ex: Boutique Amara & Cie',
+    tagline:'Slogan (optionnel)', taglinePh:'ex: La qualité avant tout',
+    logoLbl:'Logo de l\'entreprise', upText:'Appuyez pour télécharger votre logo',
+    upOk:'✓ Logo téléchargé — cliquez pour changer', removeLogo:'✕ Supprimer',
+    currency:'Devise',
+    clientTitle:'Détails du Client', clientName:'Nom du client', clientNamePh:'Nom complet',
+    clientContact:'Téléphone / Email', clientContactPh:'Téléphone ou email',
+    clientAddr:'Adresse du client', clientAddrPh:'Rue, Ville, Pays',
+    items:'Articles', colItem:'Article', colQty:'Qté', colPrice:'Prix unitaire',
+    addItem:'Ajouter un article', itemPh:'Description de l\'article',
+    discount:'Remise', discPct:'Remise (%)', discFixed:'Montant fixe',
+    subtotal:'Sous-total', discLbl:'Remise', totalDue:'TOTAL DÛ',
+    notes:'Notes', noteLbl:'Message de remerciement', notePh:'ex: Merci ! Paiement sous 7 jours.',
+    dlPDF:'Télécharger le reçu PDF', printTip:'Vous pouvez aussi imprimer avec Ctrl+P / Cmd+P',
+    preview:'Aperçu en direct',
+    pClient:'Client', pDate:'Date', pAddr:'Adresse',
+    phItem:'Article', phQty:'Qté', phUnit:'Prix unit.', phTotal:'Total',
+    pSub:'Sous-total', pDisc:'Remise', pTotal:'TOTAL DÛ',
+    topSub:'Générateur de reçus pour entreprises africaines',
+    logoutTxt:'Déconnexion',
+    loginSub:'Générateur de reçus pour entreprises africaines',
+    loginLbl:'Entrez votre code d\'accès secret',
+    loginHint:'🔒 Cette application est privée. Entrez votre code unique pour continuer. Une fois connecté sur cet appareil, vous n\'aurez plus besoin d\'entrer le code.',
+    loginBtn:'Accéder →',
+    loginErr:'❌ Code incorrect. Veuillez réessayer.',
+    thankYou:'Merci pour votre confiance ! 🌍',
+    unnamed:'(sans nom)',
+    logoutConfirm:'Êtes-vous sûr de vouloir vous déconnecter ?',
+  }
+};
+
+// ─────────────────────────────────────
+// LOGIN
+// ─────────────────────────────────────
+function checkLogin() {
+  applyLang();
+  if (localStorage.getItem('ra_auth') === 'yes') {
+    showApp();
+  }
+  document.getElementById('loginInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+}
+
+function doLogin() {
+  const val = document.getElementById('loginInput').value.trim().toUpperCase();
+  if (val === SECRET) {
+    localStorage.setItem('ra_auth', 'yes');
+    showApp();
+  } else {
+    const err = document.getElementById('loginErr');
+    err.textContent = T[lang].loginErr;
+    document.getElementById('loginInput').value = '';
+    document.getElementById('loginInput').focus();
+    setTimeout(() => { err.textContent = ''; }, 3000);
+  }
+}
+
+function doLogout() {
+  if (confirm(T[lang].logoutConfirm)) {
+    localStorage.removeItem('ra_auth');
+    location.reload();
+  }
+}
+
+function showApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'block';
+  applyLang();
+  if (items.length === 0) { addItem(); addItem(); }
+  updatePreview();
+}
+
+// ─────────────────────────────────────
+// LANGUAGE
+// ─────────────────────────────────────
+function setLang(l, btn) {
+  lang = l;
+  localStorage.setItem('ra_lang', l);
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyLang();
+  renderItems();
+  updatePreview();
+}
+
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el && val !== undefined) el.textContent = val;
+}
+
+function setPlaceholder(id, val) {
+  const el = document.getElementById(id);
+  if (el && val !== undefined) el.placeholder = val;
+}
+
+function applyLang() {
+  const t = T[lang];
+  // Text content
+  setText('t_bizTitle', t.bizTitle);
+  setText('t_bizName', t.bizName);
+  setText('t_tagline', t.tagline);
+  setText('t_logoLbl', t.logoLbl);
+  setText('t_currency', t.currency);
+  setText('t_clientTitle', t.clientTitle);
+  setText('t_clientName', t.clientName);
+  setText('t_clientContact', t.clientContact);
+  setText('t_clientAddr', t.clientAddr);
+  setText('t_items', t.items);
+  setText('t_colItem', t.colItem);
+  setText('t_colQty', t.colQty);
+  setText('t_colPrice', t.colPrice);
+  setText('t_addItem', t.addItem);
+  setText('t_discount', t.discount);
+  setText('t_discPct', t.discPct);
+  setText('t_discFixed', t.discFixed);
+  setText('t_subtotal', t.subtotal);
+  setText('t_discLbl', t.discLbl);
+  setText('t_totalDue', t.totalDue);
+  setText('t_notes', t.notes);
+  setText('t_noteLbl', t.noteLbl);
+  setText('t_dlPDF', t.dlPDF);
+  setText('t_printTip', t.printTip);
+  setText('t_preview', t.preview);
+  setText('t_pClient', t.pClient);
+  setText('t_pDate', t.pDate);
+  setText('t_pAddr', t.pAddr);
+  setText('t_phItem', t.phItem);
+  setText('t_phQty', t.phQty);
+  setText('t_phUnit', t.phUnit);
+  setText('t_phTotal', t.phTotal);
+  setText('t_pSub', t.pSub);
+  setText('t_pDisc', t.pDisc);
+  setText('t_pTotal', t.pTotal);
+  setText('topSub', t.topSub);
+  setText('logoutTxt', t.logoutTxt);
+  // Logo zone texts
+  setText('upText', t.upText);
+  setText('upOk', t.upOk);
+  setText('removeBtn', t.removeLogo);
+  // Placeholders
+  setPlaceholder('bizName', t.bizNamePh);
+  setPlaceholder('tagline', t.taglinePh);
+  setPlaceholder('clientName', t.clientNamePh);
+  setPlaceholder('clientContact', t.clientContactPh);
+  setPlaceholder('clientAddr', t.clientAddrPh);
+  setPlaceholder('receiptNote', t.notePh);
+  // Login screen (if visible)
+  setText('loginSub', t.loginSub);
+  setText('loginLbl', t.loginLbl);
+  setText('loginHint', t.loginHint);
+  setText('loginBtn', t.loginBtn);
+}
+
+// ─────────────────────────────────────
+// LOGO
+// ─────────────────────────────────────
+function handleLogo(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    alert(lang === 'fr' ? 'Veuillez sélectionner une image.' : 'Please select an image file.');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    logoData = ev.target.result;
+    const img = document.getElementById('logoImg');
+    img.src = logoData;
+    img.style.display = 'block';
+    document.getElementById('upIcon').style.display = 'none';
+    document.getElementById('upText').style.display = 'none';
+    document.getElementById('upOk').style.display = 'block';
+    document.getElementById('removeBtn').style.display = 'inline-block';
+    const pLogo = document.getElementById('pLogo');
+    pLogo.src = logoData;
+    pLogo.style.display = 'block';
+    updatePreview();
+  };
+  reader.onerror = () => alert(lang === 'fr' ? 'Erreur de lecture. Réessayez.' : 'Could not read the image. Please try again.');
+  reader.readAsDataURL(file);
+}
+
+function removeLogo(e) {
+  e.stopPropagation();
+  logoData = null;
+  const img = document.getElementById('logoImg');
+  img.src = ''; img.style.display = 'none';
+  document.getElementById('upIcon').style.display = 'block';
+  document.getElementById('upText').style.display = 'block';
+  document.getElementById('upOk').style.display = 'none';
+  document.getElementById('removeBtn').style.display = 'none';
+  document.getElementById('logoFile').value = '';
+  const pLogo = document.getElementById('pLogo');
+  pLogo.src = ''; pLogo.style.display = 'none';
+  updatePreview();
+}
+
+// ─────────────────────────────────────
+// CURRENCY
+// ─────────────────────────────────────
+function setCur(sym, code, btn) {
+  curSymbol = sym;
+  curCode = code;
+  document.querySelectorAll('.cur-pill').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   updatePreview();
 }
 
-function handleLogo(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    logoDataURL = ev.target.result;
-    document.getElementById('logoPreview').src = logoDataURL;
-    document.getElementById('logoPreview').style.display = 'block';
-    document.getElementById('logoIcon').style.display = 'none';
-    document.getElementById('logoText').textContent = 'Logo uploaded ✓';
-    document.getElementById('prevLogo').src = logoDataURL;
-    document.getElementById('prevLogo').style.display = 'block';
-    updatePreview();
-  };
-  reader.readAsDataURL(file);
+function fmt(n) {
+  const dec = (curCode === 'XOF' || curCode === 'UGX') ? 0 : 2;
+  return curSymbol + n.toLocaleString('en', { minimumFractionDigits: dec, maximumFractionDigits: dec });
 }
 
+// ─────────────────────────────────────
+// ITEMS
+// ─────────────────────────────────────
 function addItem() {
-  const id = Date.now();
-  items.push({ id, name: '', qty: 1, price: 0 });
+  items.push({ id: Date.now() + Math.random(), name: '', qty: 1, price: 0 });
   renderItems();
   updatePreview();
 }
@@ -624,172 +644,176 @@ function removeItem(id) {
 
 function renderItems() {
   const list = document.getElementById('itemsList');
+  if (!list) return;
+  const ph = T[lang].itemPh;
   list.innerHTML = '';
   items.forEach(item => {
     const row = document.createElement('div');
     row.className = 'item-row';
     row.innerHTML = `
-      <input type="text" placeholder="Item name" value="${item.name}" oninput="updateItem(${item.id},'name',this.value)"/>
-      <input type="number" min="1" value="${item.qty}" oninput="updateItem(${item.id},'qty',this.value)"/>
-      <input type="number" min="0" step="0.01" value="${item.price||''}" placeholder="0.00" oninput="updateItem(${item.id},'price',this.value)"/>
-      <button class="btn-remove" onclick="removeItem(${item.id})" title="Remove">✕</button>
+      <input type="text" placeholder="${ph}" value="${esc(item.name)}" oninput="upItem(${item.id},'name',this.value)"/>
+      <input type="number" min="1" value="${item.qty}" oninput="upItem(${item.id},'qty',this.value)"/>
+      <input type="number" min="0" step="0.01" value="${item.price || ''}" placeholder="0.00" oninput="upItem(${item.id},'price',this.value)"/>
+      <button class="btn-del" onclick="removeItem(${item.id})" title="Remove">✕</button>
     `;
     list.appendChild(row);
   });
-  document.getElementById('itemCount').textContent = items.length;
+  const b = document.getElementById('itemBadge');
+  if (b) b.textContent = items.length;
 }
 
-function updateItem(id, field, value) {
+function upItem(id, field, val) {
   const item = items.find(i => i.id === id);
   if (!item) return;
-  if (field === 'qty') item.qty = parseFloat(value) || 1;
-  else if (field === 'price') item.price = parseFloat(value) || 0;
-  else item[field] = value;
+  if (field === 'qty') item.qty = parseFloat(val) || 1;
+  else if (field === 'price') item.price = parseFloat(val) || 0;
+  else item[field] = val;
   updatePreview();
 }
 
-function fmt(n) { return currency + n.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-
-function calcTotals() {
-  const subtotal = items.reduce((s, i) => s + (i.qty * i.price), 0);
-  const pct = parseFloat(document.getElementById('discountPct').value) || 0;
-  const fixed = parseFloat(document.getElementById('discountFixed').value) || 0;
-  let discount = 0;
-  if (pct > 0) discount = subtotal * (pct / 100);
-  else if (fixed > 0) discount = Math.min(fixed, subtotal);
-  const total = Math.max(0, subtotal - discount);
-  return { subtotal, discount, total };
+function esc(s) {
+  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 }
 
+// ─────────────────────────────────────
+// TOTALS
+// ─────────────────────────────────────
+function calcTotals() {
+  const sub = items.reduce((s, i) => s + (i.qty * i.price), 0);
+  const pct = parseFloat(document.getElementById('discPct')?.value) || 0;
+  const fix = parseFloat(document.getElementById('discFixed')?.value) || 0;
+  let disc = 0;
+  if (pct > 0) disc = sub * (pct / 100);
+  else if (fix > 0) disc = Math.min(fix, sub);
+  return { sub, disc, total: Math.max(0, sub - disc) };
+}
+
+// ─────────────────────────────────────
+// PREVIEW
+// ─────────────────────────────────────
 function updatePreview() {
-  const biz = document.getElementById('bizName').value || 'Your Business Name';
-  const tag = document.getElementById('tagline').value;
-  const client = document.getElementById('clientName').value || '—';
-  const contact = document.getElementById('clientContact').value;
-  const address = document.getElementById('clientAddress').value || '—';
-  const note = document.getElementById('receiptNote').value || 'Thank you for your business! 🌍';
+  const t = T[lang];
+  const biz = document.getElementById('bizName')?.value || 'Your Business Name';
+  const tag = document.getElementById('tagline')?.value || '';
+  const cName = document.getElementById('clientName')?.value || '—';
+  const cContact = document.getElementById('clientContact')?.value || '';
+  const cAddr = document.getElementById('clientAddr')?.value || '—';
+  const note = document.getElementById('receiptNote')?.value || t.thankYou;
 
-  document.getElementById('prevBizName').textContent = biz;
-  document.getElementById('prevTagline').textContent = tag;
-  document.getElementById('prevClient').textContent = contact ? `${client} · ${contact}` : client;
-  document.getElementById('prevAddress').textContent = address;
-  document.getElementById('prevDate').textContent = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
-  document.getElementById('prevNote').textContent = note;
-  document.getElementById('prevReceiptNum').textContent = `Receipt #${String(receiptCounter).padStart(4,'0')}`;
+  setText('pBiz', biz);
+  setText('pTag', tag);
+  setText('pClient', cContact ? `${cName} · ${cContact}` : cName);
+  setText('pAddr', cAddr);
+  setText('pDate', new Date().toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' }));
+  setText('pNote', note);
+  setText('pNum', `Receipt #${String(recNum).padStart(4, '0')}`);
 
-  // Items
-  const prevItems = document.getElementById('prevItems');
-  prevItems.innerHTML = '';
+  // Items in preview
+  const pi = document.getElementById('pItems');
+  pi.innerHTML = '';
   items.forEach(item => {
     if (!item.name && !item.price) return;
-    const div = document.createElement('div');
-    div.className = 'receipt-item';
-    div.innerHTML = `
-      <div class="name">${item.name || '(unnamed)'}</div>
+    const d = document.createElement('div');
+    d.className = 'r-item';
+    d.innerHTML = `
+      <div>${esc(item.name) || t.unnamed}</div>
       <div>${item.qty}</div>
       <div>${fmt(item.price)}</div>
       <div><strong>${fmt(item.qty * item.price)}</strong></div>
     `;
-    prevItems.appendChild(div);
+    pi.appendChild(d);
   });
 
-  // Totals
-  const { subtotal, discount, total } = calcTotals();
-  document.getElementById('tSubtotal').textContent = fmt(subtotal);
-  document.getElementById('tDiscount').textContent = discount > 0 ? `–${fmt(discount)}` : '—';
-  document.getElementById('tTotal').textContent = fmt(total);
-
-  document.getElementById('prevSubtotal').textContent = fmt(subtotal);
-  document.getElementById('prevDiscount').textContent = discount > 0 ? `–${fmt(discount)}` : '—';
-  document.getElementById('prevDiscountRow').style.display = discount > 0 ? 'flex' : 'none';
-  document.getElementById('prevTotal').textContent = fmt(total);
+  const { sub, disc, total } = calcTotals();
+  setText('tSub', fmt(sub));
+  setText('tDisc', disc > 0 ? `–${fmt(disc)}` : '—');
+  setText('tTotal', fmt(total));
+  setText('pSub', fmt(sub));
+  setText('pDisc', disc > 0 ? `–${fmt(disc)}` : '—');
+  document.getElementById('pDiscRow').style.display = disc > 0 ? 'flex' : 'none';
+  setText('pTotal', fmt(total));
 }
 
+// ─────────────────────────────────────
+// PDF GENERATION
+// ─────────────────────────────────────
 async function generatePDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: 'a5' });
-  const W = 148, margin = 14;
+  const W = 148, M = 14;
   let y = 0;
+  const t = T[lang];
+  const { sub, disc, total } = calcTotals();
 
-  // Header BG
+  // Header background
   doc.setFillColor(45, 106, 79);
-  doc.rect(0, 0, W, 44, 'F');
+  doc.rect(0, 0, W, 48, 'F');
 
   // Logo
-  if (logoDataURL) {
-    try { doc.addImage(logoDataURL, 'JPEG', W/2 - 10, 4, 20, 20, '', 'FAST'); } catch(e) {}
-    y = 26;
-  } else { y = 10; }
+  if (logoData) {
+    try {
+      const ext = logoData.includes('image/png') ? 'PNG' : 'JPEG';
+      doc.addImage(logoData, ext, W / 2 - 12, 3, 24, 24, '', 'FAST');
+      y = 30;
+    } catch (e) { y = 12; }
+  } else { y = 12; }
 
-  // Biz name
+  // Business name
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(15);
-  doc.setTextColor(255,255,255);
-  const biz = document.getElementById('bizName').value || 'Your Business';
-  doc.text(biz, W/2, y+4, { align:'center' });
+  doc.setFontSize(14);
+  doc.setTextColor(255, 255, 255);
+  doc.text(document.getElementById('bizName').value || 'Business Name', W / 2, y + 5, { align: 'center' });
 
+  // Tagline
   const tag = document.getElementById('tagline').value;
   if (tag) {
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(200, 230, 210);
-    doc.text(tag, W/2, y+10, { align:'center' });
+    doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+    doc.setTextColor(190, 225, 205);
+    doc.text(tag, W / 2, y + 12, { align: 'center' });
   }
 
-  // Receipt num
-  doc.setFontSize(7);
-  doc.setTextColor(180,220,200);
-  doc.text(`Receipt #${String(receiptCounter).padStart(4,'0')}`, W/2, 41, { align:'center' });
+  // Receipt number
+  doc.setFontSize(6.5); doc.setTextColor(170, 210, 190);
+  doc.text(`Receipt #${String(recNum).padStart(4, '0')}`, W / 2, 45, { align: 'center' });
 
-  y = 50;
+  y = 54;
 
   // Client block
   doc.setFillColor(248, 248, 240);
-  doc.roundedRect(margin, y, W - margin*2, 22, 3, 3, 'F');
-  doc.setTextColor(100,100,80);
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  doc.text('CLIENT', margin+3, y+5);
-  doc.text('DATE', W/2+2, y+5);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(30,20,10);
-  doc.setFontSize(8.5);
-  const clientName = document.getElementById('clientName').value || '—';
-  const clientContact = document.getElementById('clientContact').value;
-  doc.text(clientName + (clientContact ? `  ·  ${clientContact}` : ''), margin+3, y+10);
-  doc.text(new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}), W/2+2, y+10);
-  const address = document.getElementById('clientAddress').value;
-  if (address) {
-    doc.setFontSize(7.5);
-    doc.setTextColor(100,100,80);
-    doc.text(address.substring(0,55), margin+3, y+17);
+  doc.roundedRect(M, y, W - M * 2, 24, 3, 3, 'F');
+  doc.setTextColor(110, 100, 80); doc.setFontSize(6.5); doc.setFont('helvetica', 'bold');
+  doc.text(t.pClient.toUpperCase(), M + 3, y + 5);
+  doc.text(t.pDate.toUpperCase(), W / 2 + 2, y + 5);
+  doc.setFont('helvetica', 'normal'); doc.setTextColor(30, 20, 10); doc.setFontSize(8.5);
+  const cn = document.getElementById('clientName').value || '—';
+  const cc = document.getElementById('clientContact').value;
+  doc.text(cn + (cc ? `  ·  ${cc}` : ''), M + 3, y + 12);
+  doc.text(new Date().toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), W / 2 + 2, y + 12);
+  const addr = document.getElementById('clientAddr').value;
+  if (addr) {
+    doc.setFontSize(7.5); doc.setTextColor(110, 100, 80);
+    doc.text(addr.substring(0, 55), M + 3, y + 19);
   }
-  y += 28;
+  y += 30;
 
-  // Items header
+  // Items table header
   doc.setFillColor(45, 106, 79);
-  doc.rect(margin, y, W - margin*2, 7, 'F');
-  doc.setTextColor(255,255,255);
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  const cols = [margin+2, margin+62, margin+82, margin+104];
-  doc.text('ITEM', cols[0], y+5);
-  doc.text('QTY', cols[1], y+5);
-  doc.text('UNIT PRICE', cols[2], y+5);
-  doc.text('TOTAL', cols[3], y+5);
+  doc.rect(M, y, W - M * 2, 7, 'F');
+  doc.setTextColor(255, 255, 255); doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+  const cols = [M + 2, M + 60, M + 84, M + 108];
+  doc.text(t.phItem.toUpperCase(), cols[0], y + 5);
+  doc.text(t.phQty.toUpperCase(), cols[1], y + 5);
+  doc.text(t.phUnit.toUpperCase(), cols[2], y + 5);
+  doc.text(t.phTotal.toUpperCase(), cols[3], y + 5);
   y += 10;
 
   // Items rows
   doc.setFont('helvetica', 'normal');
   items.forEach((item, idx) => {
     if (!item.name && !item.price) return;
-    if (idx % 2 === 0) {
-      doc.setFillColor(250, 248, 240);
-      doc.rect(margin, y-4, W - margin*2, 8, 'F');
-    }
-    doc.setTextColor(30,20,10);
-    doc.setFontSize(8);
-    doc.text((item.name || '(unnamed)').substring(0,30), cols[0], y);
+    if (idx % 2 === 0) { doc.setFillColor(250, 248, 240); doc.rect(M, y - 4, W - M * 2, 8, 'F'); }
+    doc.setTextColor(30, 20, 10); doc.setFontSize(8);
+    doc.text((item.name || t.unnamed).substring(0, 28), cols[0], y);
     doc.text(String(item.qty), cols[1], y);
     doc.text(fmt(item.price), cols[2], y);
     doc.setFont('helvetica', 'bold');
@@ -799,58 +823,49 @@ async function generatePDF() {
   });
 
   y += 4;
+  const tx = W - M - 2;
+  doc.setDrawColor(200, 190, 170); doc.line(M, y, W - M, y); y += 6;
+  doc.setFontSize(8); doc.setTextColor(100, 100, 80);
+  doc.text(t.subtotal, M + 2, y); doc.setTextColor(30, 20, 10); doc.text(fmt(sub), tx, y, { align: 'right' }); y += 7;
 
-  // Totals
-  const { subtotal, discount, total } = calcTotals();
-  const tx = W - margin - 2;
-  doc.setDrawColor(200, 190, 170);
-  doc.line(margin, y, W - margin, y);
-  y += 6;
-  doc.setFontSize(8);
-  doc.setTextColor(100,100,80);
-  doc.text('Subtotal', margin+2, y); doc.setTextColor(30,20,10); doc.text(fmt(subtotal), tx, y, {align:'right'}); y += 7;
-  if (discount > 0) {
-    doc.setTextColor(100,100,80); doc.text('Discount', margin+2, y);
-    doc.setTextColor(180,50,50); doc.text(`–${fmt(discount)}`, tx, y, {align:'right'}); y += 7;
+  if (disc > 0) {
+    doc.setTextColor(100, 100, 80); doc.text(t.discLbl, M + 2, y);
+    doc.setTextColor(180, 50, 50); doc.text(`–${fmt(disc)}`, tx, y, { align: 'right' }); y += 7;
   }
 
-  // Grand total
-  doc.setFillColor(45,106,79);
-  doc.roundedRect(margin, y, W - margin*2, 10, 2, 2, 'F');
-  doc.setTextColor(255,255,255);
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.text('TOTAL DUE', margin+3, y+7);
-  doc.text(fmt(total), tx, y+7, {align:'right'});
+  // Grand total bar
+  doc.setFillColor(45, 106, 79);
+  doc.roundedRect(M, y, W - M * 2, 10, 2, 2, 'F');
+  doc.setTextColor(255, 255, 255); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+  doc.text(t.totalDue, M + 3, y + 7);
+  doc.text(fmt(total), tx, y + 7, { align: 'right' });
   y += 16;
 
   // Note
   const note = document.getElementById('receiptNote').value;
   if (note) {
     doc.setFillColor(255, 243, 214);
-    doc.roundedRect(margin, y, W - margin*2, 11, 2, 2, 'F');
-    doc.setTextColor(100,80,30);
-    doc.setFontSize(7.5);
-    doc.setFont('helvetica', 'normal');
-    doc.text(note.substring(0,80), W/2, y+7, { align:'center' });
+    doc.roundedRect(M, y, W - M * 2, 11, 2, 2, 'F');
+    doc.setTextColor(100, 80, 30); doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+    doc.text(note.substring(0, 80), W / 2, y + 7, { align: 'center' });
     y += 16;
   }
 
   // Footer
-  doc.setFontSize(7);
-  doc.setTextColor(160,150,130);
-  doc.text('Generated by Risiti · risiti.app', W/2, y+4, {align:'center'});
+  doc.setFontSize(6.5); doc.setTextColor(160, 150, 130);
+  doc.text('Receipt App', W / 2, y + 4, { align: 'center' });
 
-  doc.save(`Receipt-${String(receiptCounter).padStart(4,'0')}-${(document.getElementById('clientName').value||'Client').replace(/\s/g,'_')}.pdf`);
-  receiptCounter++;
-  localStorage.setItem('risiti_count', receiptCounter);
-  document.getElementById('prevReceiptNum').textContent = `Receipt #${String(receiptCounter).padStart(4,'0')}`;
+  // Save
+  const fname = `Receipt-${String(recNum).padStart(4, '0')}-${(document.getElementById('clientName').value || 'Client').replace(/\s+/g, '_')}.pdf`;
+  doc.save(fname);
+
+  recNum++;
+  localStorage.setItem('ra_num', recNum);
+  setText('pNum', `Receipt #${String(recNum).padStart(4, '0')}`);
 }
 
-// INIT
-addItem();
-addItem();
-updatePreview();
+// START
+checkLogin();
 </script>
 </body>
 </html>
