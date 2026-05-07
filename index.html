@@ -3,177 +3,191 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#2D6A4F"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Receipt App"/>
+<meta name="description" content="Receipt Builder for African Businesses"/>
+<link rel="manifest" id="manifestLink"/>
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232D6A4F'/><text y='.9em' font-size='80' x='10'>🧾</text></svg>"/>
 <title>Receipt App</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
+/* ── CSS VARIABLES (theme-able) ── */
 :root{
-  --amber:#E8A020;--amber-light:#FFF3D6;--amber-dark:#B87A10;
-  --green:#2D6A4F;--green-light:#D8F3DC;
-  --cream:#FDFBF5;--ink:#1A1208;--muted:#7A6A50;
-  --border:#E8DCC8;--white:#FFFFFF;--danger:#C0392B;
-  --radius:14px;--shadow:0 4px 24px rgba(26,18,8,.10);
+  --primary:#2D6A4F;
+  --primary-dark:#1e4d38;
+  --primary-light:#D8F3DC;
+  --accent:#E8A020;
+  --accent-light:#FFF3D6;
+  --accent-dark:#B87A10;
+  --cream:#FDFBF5;
+  --ink:#1A1208;
+  --muted:#7A6A50;
+  --border:#E8DCC8;
+  --danger:#C0392B;
+  --radius:14px;
+  --shadow:0 4px 24px rgba(26,18,8,.10);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;word-wrap:break-word;overflow-wrap:break-word;}
 
-/* LOGIN */
-#loginScreen{
-  position:fixed;inset:0;z-index:9999;background:var(--green);
-  display:flex;align-items:center;justify-content:center;padding:24px;
-}
-.login-box{
-  background:#fff;border-radius:20px;padding:40px 36px;
-  max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;
-}
-.login-logo{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--green);margin-bottom:4px}
+/* ── LOGIN ── */
+#loginScreen{position:fixed;inset:0;z-index:9999;background:var(--primary);display:flex;align-items:center;justify-content:center;padding:24px;}
+.login-box{background:#fff;border-radius:20px;padding:40px 36px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;}
+.login-logo{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--primary);margin-bottom:4px}
 .login-sub{font-size:.8rem;color:var(--muted);margin-bottom:28px}
 .login-lbl{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;text-align:left;margin-bottom:6px}
-.login-input{
-  width:100%;padding:13px 16px;border:2px solid var(--border);border-radius:10px;
-  font-size:1.1rem;font-family:'DM Sans',sans-serif;color:var(--ink);
-  background:var(--cream);text-align:center;letter-spacing:4px;
-  outline:none;transition:border .2s,box-shadow .2s;margin-bottom:16px;
-}
-.login-input:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(232,160,32,.18)}
-.login-btn{
-  width:100%;padding:13px;background:var(--green);color:#fff;
-  border:none;border-radius:10px;font-family:'DM Sans',sans-serif;
-  font-size:1rem;font-weight:700;cursor:pointer;transition:background .2s;
-}
-.login-btn:hover{background:var(--amber-dark)}
+.login-input{width:100%;padding:13px 16px;border:2px solid var(--border);border-radius:10px;font-size:1.1rem;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--cream);text-align:center;letter-spacing:4px;outline:none;transition:border .2s,box-shadow .2s;margin-bottom:16px;}
+.login-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,160,32,.18)}
+.login-btn{width:100%;padding:13px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:background .2s;}
+.login-btn:hover{background:var(--accent-dark)}
 .login-err{color:var(--danger);font-size:.82rem;margin-top:10px;min-height:20px}
 .login-hint{font-size:.72rem;color:var(--muted);margin-top:18px;line-height:1.6}
 
-/* TOPBAR */
-.topbar{
-  background:var(--green);color:#fff;padding:13px 22px;
-  display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;
-  box-shadow:0 2px 12px rgba(0,0,0,.18);
-}
-.topbar-logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;letter-spacing:1px;color:var(--amber)}
-.topbar-sub{font-size:.72rem;color:rgba(255,255,255,.6);font-weight:300;margin-left:4px;flex:1}
-.topbar-right{display:flex;gap:8px;align-items:center;margin-left:auto}
-.lang-btn{
-  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
-  color:#fff;padding:5px 14px;border-radius:20px;cursor:pointer;
-  font-size:.78rem;font-weight:600;font-family:'DM Sans',sans-serif;transition:background .15s;
-}
-.lang-btn.active,.lang-btn:hover{background:var(--amber);color:var(--ink);border-color:var(--amber)}
-.logout-btn{
-  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
-  color:rgba(255,255,255,.75);padding:5px 10px;border-radius:8px;cursor:pointer;
-  font-size:.72rem;font-family:'DM Sans',sans-serif;transition:background .15s;
-}
+/* ── TOPBAR ── */
+.topbar{background:var(--primary);color:#fff;padding:12px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.18);flex-wrap:wrap;}
+.topbar-logo{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;letter-spacing:1px;color:var(--accent);white-space:nowrap;}
+.topbar-sub{font-size:.7rem;color:rgba(255,255,255,.6);font-weight:300;margin-left:4px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.topbar-right{display:flex;gap:6px;align-items:center;margin-left:auto;flex-wrap:wrap;}
+.lang-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;padding:5px 12px;border-radius:20px;cursor:pointer;font-size:.76rem;font-weight:600;font-family:'DM Sans',sans-serif;transition:background .15s;}
+.lang-btn.active,.lang-btn:hover{background:var(--accent);color:var(--ink);border-color:var(--accent)}
+.logout-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.75);padding:5px 10px;border-radius:8px;cursor:pointer;font-size:.72rem;font-family:'DM Sans',sans-serif;transition:background .15s;}
 .logout-btn:hover{background:rgba(200,0,0,.25);color:#fff}
+.settings-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;padding:5px 12px;border-radius:20px;cursor:pointer;font-size:.76rem;font-weight:600;font-family:'DM Sans',sans-serif;transition:background .15s;}
+.settings-btn:hover{background:rgba(255,255,255,.25)}
 
-/* LAYOUT */
-.layout{max-width:1100px;margin:0 auto;padding:28px 18px 60px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
-@media(max-width:800px){.layout{grid-template-columns:1fr}}
+/* ── LAYOUT ── */
+.layout{max-width:1120px;margin:0 auto;padding:24px 16px 60px;display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start;}
+@media(max-width:820px){.layout{grid-template-columns:1fr}}
 
-/* CARDS */
-.card{background:#fff;border-radius:var(--radius);border:1.5px solid var(--border);box-shadow:var(--shadow);padding:22px;margin-bottom:18px}
-.card-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--green);margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.card-title .icon{width:28px;height:28px;background:var(--green-light);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+/* ── CARDS ── */
+.card{background:#fff;border-radius:var(--radius);border:1.5px solid var(--border);box-shadow:var(--shadow);padding:20px;margin-bottom:16px;overflow:hidden;}
+.card-title{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--primary);margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.card-title .icon{width:27px;height:27px;background:var(--primary-light);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;}
 
-/* FORM */
-label{font-size:.76rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px}
-input[type="text"],input[type="number"],textarea{
-  width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:9px;
-  font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--ink);
-  background:var(--cream);transition:border .2s,box-shadow .2s;outline:none;
-}
-input:focus,textarea:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(232,160,32,.15)}
-textarea{resize:vertical;min-height:62px}
-.field{margin-bottom:12px}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* ── THEME PANEL ── */
+.theme-panel{display:none;position:fixed;top:60px;right:16px;z-index:200;background:#fff;border-radius:14px;padding:20px;box-shadow:0 8px 32px rgba(0,0,0,.18);border:1.5px solid var(--border);min-width:220px;}
+.theme-panel.open{display:block}
+.theme-panel h3{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:var(--primary);margin-bottom:14px;}
+.theme-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;}
+.theme-row label{font-size:.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin:0;}
+.color-swatch{width:36px;height:36px;border-radius:8px;border:2px solid var(--border);cursor:pointer;padding:2px;}
+.preset-colors{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.preset-dot{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .15s,border-color .15s;flex-shrink:0;}
+.preset-dot:hover{transform:scale(1.15);border-color:var(--ink)}
+.theme-close{width:100%;margin-top:12px;padding:8px;background:var(--primary);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;}
 
-/* LOGO UPLOAD */
-.logo-zone{
-  border:2.5px dashed var(--border);border-radius:12px;padding:20px;
-  text-align:center;background:var(--amber-light);cursor:pointer;
-  transition:border-color .2s,background .2s;position:relative;
-}
-.logo-zone:hover{border-color:var(--amber);background:#fff8e8}
-#logoImg{max-width:76px;max-height:76px;border-radius:10px;object-fit:contain;display:none;margin:0 auto 8px;border:2px solid var(--border)}
-.up-icon{font-size:2rem;margin-bottom:6px}
-.up-text{font-size:.8rem;color:var(--muted)}
-.up-ok{font-size:.8rem;color:var(--green);font-weight:600;display:none}
-.remove-logo-btn{
-  display:none;margin-top:8px;background:var(--danger);color:#fff;
-  border:none;border-radius:7px;padding:4px 12px;font-size:.75rem;cursor:pointer;
-  font-family:'DM Sans',sans-serif;
-}
+/* ── FORM ── */
+label{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px}
+input[type="text"],input[type="number"],textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--ink);background:var(--cream);transition:border .2s,box-shadow .2s;outline:none;word-wrap:break-word;overflow-wrap:break-word;}
+input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,160,32,.15)}
+textarea{resize:vertical;min-height:60px}
+.field{margin-bottom:11px;min-width:0;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:0;}
+@media(max-width:500px){.row2{grid-template-columns:1fr}}
 
-/* CURRENCY */
-.cur-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-.cur-pill{
-  border:1.5px solid var(--border);border-radius:20px;padding:5px 12px;
-  font-size:.78rem;font-weight:600;cursor:pointer;background:var(--cream);
-  color:var(--muted);transition:all .15s;font-family:'DM Sans',sans-serif;
-}
-.cur-pill.active{background:var(--green);color:#fff;border-color:var(--green)}
+/* ── LOGO UPLOAD ── */
+.logo-zone{border:2.5px dashed var(--border);border-radius:12px;padding:18px;text-align:center;background:var(--accent-light);cursor:pointer;transition:border-color .2s,background .2s;}
+.logo-zone:hover{border-color:var(--accent);background:#fff8e8}
+#logoImg{max-width:72px;max-height:72px;border-radius:10px;object-fit:contain;display:none;margin:0 auto 8px;border:2px solid var(--border)}
+.up-icon{font-size:1.8rem;margin-bottom:6px}
+.up-text,.up-ok{font-size:.78rem;}
+.up-text{color:var(--muted)}
+.up-ok{color:var(--primary);font-weight:600;display:none}
+.remove-logo-btn{display:none;margin-top:8px;background:var(--danger);color:#fff;border:none;border-radius:7px;padding:4px 12px;font-size:.73rem;cursor:pointer;font-family:'DM Sans',sans-serif;}
 
-/* ITEMS */
-.items-hdr{display:grid;grid-template-columns:2fr 1fr 1fr 34px;gap:6px;font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding-bottom:8px;border-bottom:1.5px solid var(--border);margin-bottom:8px}
-.item-row{display:grid;grid-template-columns:2fr 1fr 1fr 34px;gap:6px;align-items:center;margin-bottom:6px;animation:fadeIn .18s ease}
+/* ── CURRENCY ── */
+.cur-wrap{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.cur-pill{border:1.5px solid var(--border);border-radius:20px;padding:4px 11px;font-size:.76rem;font-weight:600;cursor:pointer;background:var(--cream);color:var(--muted);transition:all .15s;font-family:'DM Sans',sans-serif;}
+.cur-pill.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* ── ITEMS ── */
+.items-hdr{display:grid;grid-template-columns:2fr 1fr 1fr 32px;gap:5px;font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding-bottom:7px;border-bottom:1.5px solid var(--border);margin-bottom:7px;}
+.item-row{display:grid;grid-template-columns:2fr 1fr 1fr 32px;gap:5px;align-items:center;margin-bottom:5px;animation:fadeIn .18s ease;min-width:0;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-.item-row input{margin:0}
-.btn-del{background:none;border:none;cursor:pointer;color:#ccc;font-size:1.1rem;padding:4px;border-radius:6px;transition:color .15s,background .15s;line-height:1}
+.item-row input{margin:0;min-width:0;}
+.btn-del{background:none;border:none;cursor:pointer;color:#ccc;font-size:1rem;padding:4px;border-radius:6px;transition:color .15s,background .15s;line-height:1;}
 .btn-del:hover{color:var(--danger);background:#ffeaea}
 
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.86rem;font-weight:600;border:none;cursor:pointer;transition:all .18s}
-.btn-outline{background:transparent;border:1.5px solid var(--green);color:var(--green)}
-.btn-outline:hover{background:var(--green-light)}
-.btn-amber{background:var(--amber);color:var(--ink);font-weight:700;font-size:.95rem;padding:13px 28px;width:100%;justify-content:center;border-radius:12px}
-.btn-amber:hover{background:var(--amber-dark);color:#fff;transform:translateY(-1px);box-shadow:0 6px 20px rgba(232,160,32,.35)}
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.84rem;font-weight:600;border:none;cursor:pointer;transition:all .18s;}
+.btn-outline{background:transparent;border:1.5px solid var(--primary);color:var(--primary);}
+.btn-outline:hover{background:var(--primary-light)}
+.btn-amber{background:var(--accent);color:var(--ink);font-weight:700;font-size:.93rem;padding:12px 24px;width:100%;justify-content:center;border-radius:12px;}
+.btn-amber:hover{background:var(--accent-dark);color:#fff;transform:translateY(-1px);box-shadow:0 6px 20px rgba(232,160,32,.35)}
 .btn-amber:active{transform:translateY(0)}
 
-/* TOTALS */
-.totals-box{background:var(--amber-light);border-radius:10px;padding:14px 16px;margin-top:14px}
-.tot-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:.9rem}
-.tot-row.grand{border-top:2px solid var(--amber);margin-top:8px;padding-top:10px;font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--green)}
-.disc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+/* ── TOTALS ── */
+.totals-box{background:var(--accent-light);border-radius:10px;padding:13px 15px;margin-top:13px;}
+.tot-row{display:flex;justify-content:space-between;align-items:flex-start;padding:4px 0;font-size:.88rem;gap:8px;}
+.tot-row span:last-child{text-align:right;word-break:break-all;}
+.tot-row.grand{border-top:2px solid var(--accent);margin-top:8px;padding-top:10px;font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--primary);}
+.disc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:11px;}
 
-/* PREVIEW */
+/* ── PREVIEW PANEL ── */
 .preview-panel{position:relative}
-.preview-sticky{position:sticky;top:72px}
-.preview-lbl{font-family:'Playfair Display',serif;font-size:.9rem;font-weight:700;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.pulse{width:8px;height:8px;background:var(--amber);border-radius:50%;display:inline-block;animation:pulse 1.5s infinite}
+.preview-sticky{position:sticky;top:68px}
+.preview-lbl{font-family:'Playfair Display',serif;font-size:.88rem;font-weight:700;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.pulse{width:8px;height:8px;background:var(--accent);border-radius:50%;display:inline-block;animation:pulse 1.5s infinite;flex-shrink:0;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* RECEIPT PREVIEW */
-.receipt{background:#fff;border-radius:var(--radius);border:1.5px solid var(--border);box-shadow:var(--shadow);overflow:hidden;font-size:.82rem}
-.r-header{background:var(--green);color:#fff;padding:18px 22px 14px;text-align:center}
-.r-logo{width:54px;height:54px;border-radius:50%;object-fit:contain;background:#fff;margin:0 auto 8px;display:none;border:3px solid rgba(255,255,255,.3)}
-.r-biz{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900}
-.r-tag{font-size:.7rem;color:rgba(255,255,255,.65);margin-top:2px}
-.r-num{font-size:.67rem;background:rgba(255,255,255,.14);display:inline-block;padding:2px 10px;border-radius:20px;margin-top:7px}
-.r-body{padding:16px 20px}
-.r-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;padding-bottom:14px;border-bottom:1.5px dashed var(--border)}
-.r-meta-item .rl{font-size:.62rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-.r-meta-item .rv{font-size:.82rem;font-weight:500;color:var(--ink);margin-top:2px}
-.r-items-hdr{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:4px;font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1.5px solid var(--border);padding-bottom:5px;margin-bottom:6px}
-.r-item{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:4px;padding:4px 0;font-size:.79rem;border-bottom:1px solid #f0ebe0}
-.r-totals{margin-top:12px;padding-top:8px}
-.rt-row{display:flex;justify-content:space-between;padding:3px 0;font-size:.8rem;color:var(--muted)}
-.rt-row.grand{background:var(--green);color:#fff;border-radius:7px;padding:8px 12px;margin-top:7px;font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700}
-.r-footer{background:var(--amber-light);padding:12px 20px;text-align:center;font-size:.72rem;color:var(--muted);border-top:1.5px dashed var(--border)}
-.badge{display:inline-block;background:var(--green-light);color:var(--green);font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:6px;vertical-align:middle}
+/* ── RECEIPT ── */
+.receipt{background:#fff;border-radius:var(--radius);border:1.5px solid var(--border);box-shadow:var(--shadow);overflow:hidden;font-size:.8rem;word-wrap:break-word;overflow-wrap:break-word;}
+.r-header{background:var(--primary);color:#fff;padding:16px 20px 13px;text-align:center;}
+.r-logo{width:52px;height:52px;border-radius:50%;object-fit:contain;background:#fff;margin:0 auto 8px;display:none;border:3px solid rgba(255,255,255,.3);}
+.r-biz{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:900;word-break:break-word;}
+.r-tag{font-size:.68rem;color:rgba(255,255,255,.65);margin-top:2px;word-break:break-word;}
+.r-num{font-size:.65rem;background:rgba(255,255,255,.14);display:inline-block;padding:2px 10px;border-radius:20px;margin-top:7px;}
+.r-body{padding:14px 18px;}
+.r-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px;padding-bottom:13px;border-bottom:1.5px dashed var(--border);}
+.r-meta-item .rl{font-size:.6rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.r-meta-item .rv{font-size:.8rem;font-weight:500;color:var(--ink);margin-top:2px;word-break:break-word;overflow-wrap:break-word;}
+.r-items-hdr{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:4px;font-size:.6rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1.5px solid var(--border);padding-bottom:5px;margin-bottom:5px;}
+.r-item{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:4px;padding:4px 0;font-size:.77rem;border-bottom:1px solid #f0ebe0;}
+.r-item > div{word-break:break-word;overflow-wrap:break-word;min-width:0;}
+.r-totals{margin-top:11px;padding-top:7px;}
+.rt-row{display:flex;justify-content:space-between;align-items:flex-start;padding:3px 0;font-size:.78rem;color:var(--muted);gap:8px;}
+.rt-row span:last-child{text-align:right;word-break:break-all;}
+.rt-row.grand{background:var(--primary);color:#fff;border-radius:7px;padding:8px 12px;margin-top:7px;font-family:'Playfair Display',serif;font-size:.92rem;font-weight:700;}
+.r-footer{background:var(--accent-light);padding:11px 18px;text-align:center;font-size:.7rem;color:var(--muted);border-top:1.5px dashed var(--border);}
 
+/* ── SIGNATURE & STAMP SECTION ── */
+.r-sign-section{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;padding-top:16px;border-top:1.5px dashed var(--border);}
+.r-sign-box{text-align:center;}
+.r-sign-line{border-top:1.5px solid var(--ink);margin:0 8px 6px;margin-top:36px;}
+.r-sign-label{font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.r-stamp-circle{width:70px;height:70px;border-radius:50%;border:2.5px dashed var(--muted);margin:0 auto 6px;display:flex;align-items:center;justify-content:center;}
+.r-stamp-label{font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.r-stamp-inner{font-size:.55rem;color:var(--muted);text-align:center;line-height:1.3;padding:4px;}
+
+/* ── BADGE ── */
+.badge{display:inline-block;background:var(--primary-light);color:var(--primary);font-size:.67rem;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:5px;vertical-align:middle;}
+
+/* ── INSTALL BANNER ── */
+#installBanner{display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;padding:12px 20px;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.25);z-index:300;display:none;align-items:center;gap:12px;max-width:360px;width:90%;}
+#installBanner p{font-size:.82rem;flex:1;line-height:1.4;}
+.install-btn{background:var(--accent);color:var(--ink);border:none;border-radius:8px;padding:8px 14px;font-weight:700;font-size:.8rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.install-dismiss{background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:1.2rem;padding:0 4px;}
+
+/* ── PRINT STYLES ── */
 @media print{
   body{background:#fff}
   .layout{grid-template-columns:1fr;padding:0}
-  .left-col,.topbar,.no-print{display:none}
+  .left-col,.topbar,.no-print,#installBanner,.theme-panel{display:none!important}
   .preview-sticky{position:static}
-  .receipt{box-shadow:none;border:none}
+  .receipt{box-shadow:none;border:none;border-radius:0;}
+  .r-sign-section{display:grid!important;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;padding-top:20px;}
+  .r-stamp-circle{border:2px dashed #666;}
+  .r-sign-line{border-top:1px solid #333;}
 }
 </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- ══════ LOGIN ══════ -->
 <div id="loginScreen">
   <div class="login-box">
     <div class="login-logo">🧾 Receipt App</div>
@@ -186,7 +200,33 @@ textarea{resize:vertical;min-height:62px}
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- ══════ THEME PANEL ══════ -->
+<div class="theme-panel" id="themePanel">
+  <h3>🎨 <span id="t_themeTitle">Customize Theme</span></h3>
+  <div class="theme-row">
+    <label id="t_primaryColor">Primary Color</label>
+    <input type="color" class="color-swatch" id="colorPrimary" value="#2D6A4F" oninput="applyTheme()"/>
+  </div>
+  <div class="theme-row">
+    <label id="t_accentColor">Accent Color</label>
+    <input type="color" class="color-swatch" id="colorAccent" value="#E8A020" oninput="applyTheme()"/>
+  </div>
+  <div style="margin-top:6px">
+    <label style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;display:block" id="t_presets">Presets</label>
+    <div class="preset-colors">
+      <div class="preset-dot" style="background:#2D6A4F" onclick="setPreset('#2D6A4F','#E8A020')" title="Forest"></div>
+      <div class="preset-dot" style="background:#1a3a5c" onclick="setPreset('#1a3a5c','#E8A020')" title="Navy"></div>
+      <div class="preset-dot" style="background:#6B2737" onclick="setPreset('#6B2737','#F0C040')" title="Burgundy"></div>
+      <div class="preset-dot" style="background:#4A235A" onclick="setPreset('#4A235A','#E8A020')" title="Purple"></div>
+      <div class="preset-dot" style="background:#1B4F72" onclick="setPreset('#1B4F72','#48C9B0')" title="Ocean"></div>
+      <div class="preset-dot" style="background:#212121" onclick="setPreset('#212121','#E8A020')" title="Charcoal"></div>
+      <div class="preset-dot" style="background:#7D3C0B" onclick="setPreset('#7D3C0B','#F0C040')" title="Terracotta"></div>
+    </div>
+  </div>
+  <button class="theme-close" onclick="toggleTheme()" id="t_closeTheme">Close</button>
+</div>
+
+<!-- ══════ MAIN APP ══════ -->
 <div id="appShell" style="display:none">
 
 <div class="topbar">
@@ -195,16 +235,17 @@ textarea{resize:vertical;min-height:62px}
   <div class="topbar-right">
     <button class="lang-btn active" id="btnEN" onclick="setLang('en',this)">EN</button>
     <button class="lang-btn" id="btnFR" onclick="setLang('fr',this)">FR</button>
+    <button class="settings-btn" onclick="toggleTheme()">🎨 <span id="t_customize">Theme</span></button>
     <button class="logout-btn" onclick="doLogout()">🔓 <span id="logoutTxt">Logout</span></button>
   </div>
 </div>
 
 <div class="layout">
 
-  <!-- LEFT COLUMN -->
+  <!-- ══ LEFT COLUMN ══ -->
   <div class="left-col">
 
-    <!-- Business Card -->
+    <!-- Business -->
     <div class="card">
       <div class="card-title"><span class="icon">🏪</span> <span id="t_bizTitle">Your Business</span></div>
       <div class="field">
@@ -215,8 +256,6 @@ textarea{resize:vertical;min-height:62px}
         <label id="t_tagline">Tagline / Slogan (optional)</label>
         <input type="text" id="tagline" oninput="updatePreview()"/>
       </div>
-
-      <!-- LOGO UPLOAD -->
       <div class="field">
         <label id="t_logoLbl">Business Logo</label>
         <div class="logo-zone" id="logoZone" onclick="document.getElementById('logoFile').click()">
@@ -228,8 +267,6 @@ textarea{resize:vertical;min-height:62px}
         </div>
         <input type="file" id="logoFile" accept="image/*" style="display:none" onchange="handleLogo(event)"/>
       </div>
-
-      <!-- CURRENCY -->
       <div class="field">
         <label id="t_currency">Currency</label>
         <div class="cur-wrap">
@@ -245,7 +282,7 @@ textarea{resize:vertical;min-height:62px}
       </div>
     </div>
 
-    <!-- Client Card -->
+    <!-- Client -->
     <div class="card">
       <div class="card-title"><span class="icon">👤</span> <span id="t_clientTitle">Client Details</span></div>
       <div class="row2">
@@ -264,7 +301,7 @@ textarea{resize:vertical;min-height:62px}
       </div>
     </div>
 
-    <!-- Items Card -->
+    <!-- Items -->
     <div class="card">
       <div class="card-title"><span class="icon">🛒</span> <span id="t_items">Items</span> <span class="badge" id="itemBadge">0</span></div>
       <div class="items-hdr">
@@ -277,10 +314,8 @@ textarea{resize:vertical;min-height:62px}
       <div style="margin-top:10px">
         <button class="btn btn-outline" onclick="addItem()">＋ <span id="t_addItem">Add Item</span></button>
       </div>
-
-      <!-- Discount -->
-      <div style="margin-top:16px;padding-top:14px;border-top:1.5px dashed var(--border)">
-        <div class="card-title" style="font-size:.92rem;margin-bottom:10px"><span class="icon">🏷️</span> <span id="t_discount">Discount</span></div>
+      <div style="margin-top:15px;padding-top:13px;border-top:1.5px dashed var(--border)">
+        <div class="card-title" style="font-size:.9rem;margin-bottom:10px"><span class="icon">🏷️</span> <span id="t_discount">Discount</span></div>
         <div class="disc-grid">
           <div class="field">
             <label id="t_discPct">Discount (%)</label>
@@ -292,7 +327,6 @@ textarea{resize:vertical;min-height:62px}
           </div>
         </div>
       </div>
-
       <div class="totals-box">
         <div class="tot-row"><span style="color:var(--muted)" id="t_subtotal">Subtotal</span><span id="tSub">—</span></div>
         <div class="tot-row"><span style="color:var(--muted)" id="t_discLbl">Discount</span><span id="tDisc" style="color:var(--danger)">—</span></div>
@@ -300,7 +334,7 @@ textarea{resize:vertical;min-height:62px}
       </div>
     </div>
 
-    <!-- Notes Card -->
+    <!-- Notes -->
     <div class="card">
       <div class="card-title"><span class="icon">📝</span> <span id="t_notes">Notes</span></div>
       <div class="field">
@@ -310,15 +344,15 @@ textarea{resize:vertical;min-height:62px}
     </div>
 
     <button class="btn btn-amber no-print" onclick="generatePDF()">🖨️ &nbsp;<span id="t_dlPDF">Download PDF Receipt</span></button>
-    <p style="font-size:.75rem;color:var(--muted);margin-top:10px;text-align:center" id="t_printTip">You can also Print with Ctrl+P / Cmd+P</p>
+    <p style="font-size:.73rem;color:var(--muted);margin-top:10px;text-align:center" id="t_printTip">You can also Print with Ctrl+P / Cmd+P</p>
 
-  </div>
+  </div><!-- /left -->
 
-  <!-- RIGHT: LIVE PREVIEW -->
+  <!-- ══ RIGHT: PREVIEW ══ -->
   <div class="preview-panel">
     <div class="preview-sticky">
       <div class="preview-lbl"><span id="t_preview">Live Preview</span> <span class="pulse"></span></div>
-      <div class="receipt">
+      <div class="receipt" id="receiptEl">
         <div class="r-header">
           <img id="pLogo" class="r-logo" src="" alt=""/>
           <div class="r-biz" id="pBiz">Your Business Name</div>
@@ -354,104 +388,253 @@ textarea{resize:vertical;min-height:62px}
             </div>
             <div class="rt-row grand"><span id="t_pTotal">TOTAL DUE</span><span id="pTotal">—</span></div>
           </div>
+
+          <!-- SIGNATURE & STAMP -->
+          <div class="r-sign-section">
+            <div class="r-sign-box">
+              <div class="r-sign-line"></div>
+              <div class="r-sign-label" id="t_signLabel">Authorized Signature</div>
+            </div>
+            <div class="r-sign-box">
+              <div class="r-stamp-circle">
+                <div class="r-stamp-inner" id="t_stampInner">STAMP</div>
+              </div>
+              <div class="r-stamp-label" id="t_stampLabel">Official Stamp</div>
+            </div>
+          </div>
+
         </div>
         <div class="r-footer">
           <div id="pNote">Thank you for your business! 🌍</div>
-          <div style="margin-top:5px;font-size:.65rem;color:#bbb">Receipt App</div>
+          <div style="margin-top:5px;font-size:.62rem;color:#bbb">Receipt App</div>
         </div>
       </div>
     </div>
   </div>
 
-</div>
+</div><!-- /layout -->
+</div><!-- /appShell -->
+
+<!-- ══════ PWA INSTALL BANNER ══════ -->
+<div id="installBanner" style="display:none">
+  <p id="installMsg">📲 Add Receipt App to your home screen for quick access!</p>
+  <button class="install-btn" id="installBtn" onclick="installPWA()">Install</button>
+  <button class="install-dismiss" onclick="dismissInstall()">✕</button>
 </div>
 
 <script>
-// ─────────────────────────────────────
-// SECRET CODE — change this to your own
-// ─────────────────────────────────────
+// ═══════════════════════════════════════
+// SECRET CODE — change this to your own!
+// ═══════════════════════════════════════
 const SECRET = 'RECEIPT2024';
 
 // ── State
-let curSymbol = '₦';
-let curCode = 'NGN';
+let curSymbol = '₦', curCode = 'NGN';
 let logoData = null;
 let items = [];
 let lang = localStorage.getItem('ra_lang') || 'en';
 let recNum = parseInt(localStorage.getItem('ra_num') || '1');
+let deferredInstallPrompt = null;
 
 // ── Translations
 const T = {
-  en: {
-    bizTitle:'Your Business', bizName:'Business Name', bizNamePh:'e.g. Amara Fabrics & Co.',
-    tagline:'Tagline / Slogan (optional)', taglinePh:'e.g. Quality you can trust',
-    logoLbl:'Business Logo', upText:'Tap to upload your logo',
-    upOk:'✓ Logo uploaded — click to change', removeLogo:'✕ Remove',
+  en:{
+    bizTitle:'Your Business',bizName:'Business Name',bizNamePh:'e.g. Amara Fabrics & Co.',
+    tagline:'Tagline / Slogan (optional)',taglinePh:'e.g. Quality you can trust',
+    logoLbl:'Business Logo',upText:'Tap to upload your logo',
+    upOk:'✓ Logo uploaded — click to change',removeLogo:'✕ Remove',
     currency:'Currency',
-    clientTitle:'Client Details', clientName:'Client Name', clientNamePh:'Full name',
-    clientContact:'Phone / Email', clientContactPh:'Phone or email',
-    clientAddr:'Client Address', clientAddrPh:'Street, City, Country',
-    items:'Items', colItem:'Item', colQty:'Qty', colPrice:'Unit Price',
-    addItem:'Add Item', itemPh:'Item description',
-    discount:'Discount', discPct:'Discount (%)', discFixed:'Fixed Amount',
-    subtotal:'Subtotal', discLbl:'Discount', totalDue:'TOTAL DUE',
-    notes:'Notes', noteLbl:'Thank-you message', notePh:'e.g. Thank you! Payment due within 7 days.',
-    dlPDF:'Download PDF Receipt', printTip:'You can also Print with Ctrl+P / Cmd+P',
+    clientTitle:'Client Details',clientName:'Client Name',clientNamePh:'Full name',
+    clientContact:'Phone / Email',clientContactPh:'Phone or email',
+    clientAddr:'Client Address',clientAddrPh:'Street, City, Country',
+    items:'Items',colItem:'Item',colQty:'Qty',colPrice:'Unit Price',
+    addItem:'Add Item',itemPh:'Item description',
+    discount:'Discount',discPct:'Discount (%)',discFixed:'Fixed Amount',
+    subtotal:'Subtotal',discLbl:'Discount',totalDue:'TOTAL DUE',
+    notes:'Notes',noteLbl:'Thank-you message',notePh:'e.g. Thank you! Payment due within 7 days.',
+    dlPDF:'Download PDF Receipt',printTip:'You can also Print with Ctrl+P / Cmd+P',
     preview:'Live Preview',
-    pClient:'Client', pDate:'Date', pAddr:'Address',
-    phItem:'Item', phQty:'Qty', phUnit:'Unit Price', phTotal:'Total',
-    pSub:'Subtotal', pDisc:'Discount', pTotal:'TOTAL DUE',
+    pClient:'Client',pDate:'Date',pAddr:'Address',
+    phItem:'Item',phQty:'Qty',phUnit:'Unit Price',phTotal:'Total',
+    pSub:'Subtotal',pDisc:'Discount',pTotal:'TOTAL DUE',
     topSub:'Receipt Builder for African Businesses',
-    logoutTxt:'Logout',
+    logoutTxt:'Logout',customize:'Theme',
+    themeTitle:'Customize Theme',primaryColor:'Primary Color',accentColor:'Accent Color',
+    presets:'Presets',closeTheme:'Close',
+    signLabel:'Authorized Signature',stampLabel:'Official Stamp',stampInner:'STAMP',
     loginSub:'Receipt Builder for African Businesses',
     loginLbl:'Enter Your Secret Access Code',
     loginHint:'🔒 This app is private. Enter your unique access code to continue. Once logged in on this device, you won\'t need to enter the code again.',
-    loginBtn:'Unlock →',
-    loginErr:'❌ Incorrect code. Please try again.',
-    thankYou:'Thank you for your business! 🌍',
-    unnamed:'(unnamed)',
+    loginBtn:'Unlock →',loginErr:'❌ Incorrect code. Please try again.',
+    thankYou:'Thank you for your business! 🌍',unnamed:'(unnamed)',
     logoutConfirm:'Are you sure you want to log out?',
+    installMsg:'📲 Add Receipt App to your home screen for quick access!',
   },
-  fr: {
-    bizTitle:'Votre Entreprise', bizName:'Nom de l\'entreprise', bizNamePh:'ex: Boutique Amara & Cie',
-    tagline:'Slogan (optionnel)', taglinePh:'ex: La qualité avant tout',
-    logoLbl:'Logo de l\'entreprise', upText:'Appuyez pour télécharger votre logo',
-    upOk:'✓ Logo téléchargé — cliquez pour changer', removeLogo:'✕ Supprimer',
+  fr:{
+    bizTitle:'Votre Entreprise',bizName:'Nom de l\'entreprise',bizNamePh:'ex: Boutique Amara & Cie',
+    tagline:'Slogan (optionnel)',taglinePh:'ex: La qualité avant tout',
+    logoLbl:'Logo de l\'entreprise',upText:'Appuyez pour télécharger votre logo',
+    upOk:'✓ Logo téléchargé — cliquez pour changer',removeLogo:'✕ Supprimer',
     currency:'Devise',
-    clientTitle:'Détails du Client', clientName:'Nom du client', clientNamePh:'Nom complet',
-    clientContact:'Téléphone / Email', clientContactPh:'Téléphone ou email',
-    clientAddr:'Adresse du client', clientAddrPh:'Rue, Ville, Pays',
-    items:'Articles', colItem:'Article', colQty:'Qté', colPrice:'Prix unitaire',
-    addItem:'Ajouter un article', itemPh:'Description de l\'article',
-    discount:'Remise', discPct:'Remise (%)', discFixed:'Montant fixe',
-    subtotal:'Sous-total', discLbl:'Remise', totalDue:'TOTAL DÛ',
-    notes:'Notes', noteLbl:'Message de remerciement', notePh:'ex: Merci ! Paiement sous 7 jours.',
-    dlPDF:'Télécharger le reçu PDF', printTip:'Vous pouvez aussi imprimer avec Ctrl+P / Cmd+P',
+    clientTitle:'Détails du Client',clientName:'Nom du client',clientNamePh:'Nom complet',
+    clientContact:'Téléphone / Email',clientContactPh:'Téléphone ou email',
+    clientAddr:'Adresse du client',clientAddrPh:'Rue, Ville, Pays',
+    items:'Articles',colItem:'Article',colQty:'Qté',colPrice:'Prix unitaire',
+    addItem:'Ajouter un article',itemPh:'Description de l\'article',
+    discount:'Remise',discPct:'Remise (%)',discFixed:'Montant fixe',
+    subtotal:'Sous-total',discLbl:'Remise',totalDue:'TOTAL DÛ',
+    notes:'Notes',noteLbl:'Message de remerciement',notePh:'ex: Merci ! Paiement sous 7 jours.',
+    dlPDF:'Télécharger le reçu PDF',printTip:'Vous pouvez aussi imprimer avec Ctrl+P / Cmd+P',
     preview:'Aperçu en direct',
-    pClient:'Client', pDate:'Date', pAddr:'Adresse',
-    phItem:'Article', phQty:'Qté', phUnit:'Prix unit.', phTotal:'Total',
-    pSub:'Sous-total', pDisc:'Remise', pTotal:'TOTAL DÛ',
+    pClient:'Client',pDate:'Date',pAddr:'Adresse',
+    phItem:'Article',phQty:'Qté',phUnit:'Prix unit.',phTotal:'Total',
+    pSub:'Sous-total',pDisc:'Remise',pTotal:'TOTAL DÛ',
     topSub:'Générateur de reçus pour entreprises africaines',
-    logoutTxt:'Déconnexion',
+    logoutTxt:'Déconnexion',customize:'Thème',
+    themeTitle:'Personnaliser le thème',primaryColor:'Couleur principale',accentColor:'Couleur d\'accentuation',
+    presets:'Préréglages',closeTheme:'Fermer',
+    signLabel:'Signature autorisée',stampLabel:'Cachet officiel',stampInner:'CACHET',
     loginSub:'Générateur de reçus pour entreprises africaines',
     loginLbl:'Entrez votre code d\'accès secret',
-    loginHint:'🔒 Cette application est privée. Entrez votre code unique pour continuer. Une fois connecté sur cet appareil, vous n\'aurez plus besoin d\'entrer le code.',
-    loginBtn:'Accéder →',
-    loginErr:'❌ Code incorrect. Veuillez réessayer.',
-    thankYou:'Merci pour votre confiance ! 🌍',
-    unnamed:'(sans nom)',
+    loginHint:'🔒 Cette application est privée. Entrez votre code unique pour continuer. Une fois connecté, vous n\'aurez plus besoin de le saisir sur cet appareil.',
+    loginBtn:'Accéder →',loginErr:'❌ Code incorrect. Veuillez réessayer.',
+    thankYou:'Merci pour votre confiance ! 🌍',unnamed:'(sans nom)',
     logoutConfirm:'Êtes-vous sûr de vouloir vous déconnecter ?',
+    installMsg:'📲 Ajoutez Receipt App à votre écran d\'accueil pour un accès rapide !',
   }
 };
 
-// ─────────────────────────────────────
-// LOGIN
-// ─────────────────────────────────────
-function checkLogin() {
-  applyLang();
-  if (localStorage.getItem('ra_auth') === 'yes') {
-    showApp();
+// ═══════════════════════════════════════
+// PWA SETUP
+// ═══════════════════════════════════════
+function setupPWA() {
+  // Inject manifest dynamically
+  const manifest = {
+    name: 'Receipt App',
+    short_name: 'Receipt App',
+    description: 'Receipt Builder for African Businesses',
+    start_url: './',
+    display: 'standalone',
+    background_color: '#2D6A4F',
+    theme_color: '#2D6A4F',
+    orientation: 'portrait-primary',
+    icons: [
+      { src: 'data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><rect width=\'100\' height=\'100\' rx=\'20\' fill=\'%232D6A4F\'/><text y=\'.9em\' font-size=\'80\' x=\'10\'>🧾</text></svg>', sizes: '192x192', type: 'image/svg+xml' },
+      { src: 'data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><rect width=\'100\' height=\'100\' rx=\'20\' fill=\'%232D6A4F\'/><text y=\'.9em\' font-size=\'80\' x=\'10\'>🧾</text></svg>', sizes: '512x512', type: 'image/svg+xml' }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  document.getElementById('manifestLink').href = url;
+
+  // Service Worker
+  if ('serviceWorker' in navigator) {
+    const swCode = `
+const CACHE = 'receipt-app-v1';
+const ASSETS = ['./', './index.html'];
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
+  self.skipWaiting();
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))));
+  self.clients.claim();
+});
+self.addEventListener('fetch', e => {
+  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('./index.html'))));
+});
+    `;
+    const swBlob = new Blob([swCode], { type: 'application/javascript' });
+    const swUrl = URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swUrl).catch(() => {});
   }
+
+  // Listen for install prompt
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    const banner = document.getElementById('installBanner');
+    banner.style.display = 'flex';
+  });
+
+  window.addEventListener('appinstalled', () => {
+    document.getElementById('installBanner').style.display = 'none';
+    deferredInstallPrompt = null;
+  });
+}
+
+function installPWA() {
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then(() => {
+      deferredInstallPrompt = null;
+      document.getElementById('installBanner').style.display = 'none';
+    });
+  }
+}
+
+function dismissInstall() {
+  document.getElementById('installBanner').style.display = 'none';
+}
+
+// ═══════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════
+function toggleTheme() {
+  document.getElementById('themePanel').classList.toggle('open');
+}
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return {r,g,b};
+}
+
+function darken(hex, amount=30) {
+  let {r,g,b} = hexToRgb(hex);
+  return `#${[r,g,b].map(v=>Math.max(0,v-amount).toString(16).padStart(2,'0')).join('')}`;
+}
+
+function lighten(hex, amount=160) {
+  let {r,g,b} = hexToRgb(hex);
+  return `#${[r,g,b].map(v=>Math.min(255,v+amount).toString(16).padStart(2,'0')).join('')}`;
+}
+
+function applyTheme() {
+  const p = document.getElementById('colorPrimary').value;
+  const a = document.getElementById('colorAccent').value;
+  const root = document.documentElement;
+  root.style.setProperty('--primary', p);
+  root.style.setProperty('--primary-dark', darken(p, 30));
+  root.style.setProperty('--primary-light', lighten(p, 160));
+  root.style.setProperty('--accent', a);
+  root.style.setProperty('--accent-dark', darken(a, 30));
+  root.style.setProperty('--accent-light', lighten(a, 140));
+  localStorage.setItem('ra_primary', p);
+  localStorage.setItem('ra_accent', a);
+}
+
+function setPreset(p, a) {
+  document.getElementById('colorPrimary').value = p;
+  document.getElementById('colorAccent').value = a;
+  applyTheme();
+}
+
+function loadSavedTheme() {
+  const p = localStorage.getItem('ra_primary');
+  const a = localStorage.getItem('ra_accent');
+  if (p) { document.getElementById('colorPrimary').value = p; }
+  if (a) { document.getElementById('colorAccent').value = a; }
+  if (p || a) applyTheme();
+}
+
+// ═══════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════
+function checkLogin() {
+  setupPWA();
+  loadSavedTheme();
+  applyLang();
+  if (localStorage.getItem('ra_auth') === 'yes') showApp();
   document.getElementById('loginInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') doLogin();
   });
@@ -486,9 +669,9 @@ function showApp() {
   updatePreview();
 }
 
-// ─────────────────────────────────────
+// ═══════════════════════════════════════
 // LANGUAGE
-// ─────────────────────────────────────
+// ═══════════════════════════════════════
 function setLang(l, btn) {
   lang = l;
   localStorage.setItem('ra_lang', l);
@@ -511,65 +694,36 @@ function setPlaceholder(id, val) {
 
 function applyLang() {
   const t = T[lang];
-  // Text content
-  setText('t_bizTitle', t.bizTitle);
-  setText('t_bizName', t.bizName);
-  setText('t_tagline', t.tagline);
-  setText('t_logoLbl', t.logoLbl);
-  setText('t_currency', t.currency);
-  setText('t_clientTitle', t.clientTitle);
-  setText('t_clientName', t.clientName);
-  setText('t_clientContact', t.clientContact);
-  setText('t_clientAddr', t.clientAddr);
-  setText('t_items', t.items);
-  setText('t_colItem', t.colItem);
-  setText('t_colQty', t.colQty);
-  setText('t_colPrice', t.colPrice);
-  setText('t_addItem', t.addItem);
-  setText('t_discount', t.discount);
-  setText('t_discPct', t.discPct);
-  setText('t_discFixed', t.discFixed);
-  setText('t_subtotal', t.subtotal);
-  setText('t_discLbl', t.discLbl);
-  setText('t_totalDue', t.totalDue);
-  setText('t_notes', t.notes);
-  setText('t_noteLbl', t.noteLbl);
-  setText('t_dlPDF', t.dlPDF);
-  setText('t_printTip', t.printTip);
-  setText('t_preview', t.preview);
-  setText('t_pClient', t.pClient);
-  setText('t_pDate', t.pDate);
-  setText('t_pAddr', t.pAddr);
-  setText('t_phItem', t.phItem);
-  setText('t_phQty', t.phQty);
-  setText('t_phUnit', t.phUnit);
-  setText('t_phTotal', t.phTotal);
-  setText('t_pSub', t.pSub);
-  setText('t_pDisc', t.pDisc);
-  setText('t_pTotal', t.pTotal);
-  setText('topSub', t.topSub);
-  setText('logoutTxt', t.logoutTxt);
-  // Logo zone texts
-  setText('upText', t.upText);
-  setText('upOk', t.upOk);
-  setText('removeBtn', t.removeLogo);
-  // Placeholders
-  setPlaceholder('bizName', t.bizNamePh);
-  setPlaceholder('tagline', t.taglinePh);
-  setPlaceholder('clientName', t.clientNamePh);
-  setPlaceholder('clientContact', t.clientContactPh);
-  setPlaceholder('clientAddr', t.clientAddrPh);
-  setPlaceholder('receiptNote', t.notePh);
-  // Login screen (if visible)
-  setText('loginSub', t.loginSub);
-  setText('loginLbl', t.loginLbl);
-  setText('loginHint', t.loginHint);
-  setText('loginBtn', t.loginBtn);
+  const map = {
+    t_bizTitle:'bizTitle',t_bizName:'bizName',t_tagline:'tagline',t_logoLbl:'logoLbl',
+    t_currency:'currency',t_clientTitle:'clientTitle',t_clientName:'clientName',
+    t_clientContact:'clientContact',t_clientAddr:'clientAddr',t_items:'items',
+    t_colItem:'colItem',t_colQty:'colQty',t_colPrice:'colPrice',t_addItem:'addItem',
+    t_discount:'discount',t_discPct:'discPct',t_discFixed:'discFixed',
+    t_subtotal:'subtotal',t_discLbl:'discLbl',t_totalDue:'totalDue',
+    t_notes:'notes',t_noteLbl:'noteLbl',t_dlPDF:'dlPDF',t_printTip:'printTip',
+    t_preview:'preview',t_pClient:'pClient',t_pDate:'pDate',t_pAddr:'pAddr',
+    t_phItem:'phItem',t_phQty:'phQty',t_phUnit:'phUnit',t_phTotal:'phTotal',
+    t_pSub:'pSub',t_pDisc:'pDisc',t_pTotal:'pTotal',
+    topSub:'topSub',logoutTxt:'logoutTxt',t_customize:'customize',
+    t_themeTitle:'themeTitle',t_primaryColor:'primaryColor',t_accentColor:'accentColor',
+    t_presets:'presets',t_closeTheme:'closeTheme',
+    t_signLabel:'signLabel',t_stampLabel:'stampLabel',t_stampInner:'stampInner',
+    loginSub:'loginSub',loginLbl:'loginLbl',loginHint:'loginHint',loginBtn:'loginBtn',
+    upText:'upText',upOk:'upOk',removeBtn:'removeLogo',
+    installMsg:'installMsg',
+  };
+  Object.entries(map).forEach(([id,key]) => setText(id, t[key]));
+  const phs = {
+    bizName:'bizNamePh',tagline:'taglinePh',clientName:'clientNamePh',
+    clientContact:'clientContactPh',clientAddr:'clientAddrPh',receiptNote:'notePh'
+  };
+  Object.entries(phs).forEach(([id,key]) => setPlaceholder(id, t[key]));
 }
 
-// ─────────────────────────────────────
+// ═══════════════════════════════════════
 // LOGO
-// ─────────────────────────────────────
+// ═══════════════════════════════════════
 function handleLogo(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -581,42 +735,39 @@ function handleLogo(e) {
   reader.onload = ev => {
     logoData = ev.target.result;
     const img = document.getElementById('logoImg');
-    img.src = logoData;
-    img.style.display = 'block';
+    img.src = logoData; img.style.display = 'block';
     document.getElementById('upIcon').style.display = 'none';
     document.getElementById('upText').style.display = 'none';
     document.getElementById('upOk').style.display = 'block';
     document.getElementById('removeBtn').style.display = 'inline-block';
     const pLogo = document.getElementById('pLogo');
-    pLogo.src = logoData;
-    pLogo.style.display = 'block';
+    pLogo.src = logoData; pLogo.style.display = 'block';
     updatePreview();
   };
-  reader.onerror = () => alert(lang === 'fr' ? 'Erreur de lecture. Réessayez.' : 'Could not read the image. Please try again.');
+  reader.onerror = () => alert('Could not read the image. Please try again.');
   reader.readAsDataURL(file);
 }
 
 function removeLogo(e) {
   e.stopPropagation();
   logoData = null;
-  const img = document.getElementById('logoImg');
-  img.src = ''; img.style.display = 'none';
+  document.getElementById('logoImg').src = '';
+  document.getElementById('logoImg').style.display = 'none';
   document.getElementById('upIcon').style.display = 'block';
   document.getElementById('upText').style.display = 'block';
   document.getElementById('upOk').style.display = 'none';
   document.getElementById('removeBtn').style.display = 'none';
   document.getElementById('logoFile').value = '';
-  const pLogo = document.getElementById('pLogo');
-  pLogo.src = ''; pLogo.style.display = 'none';
+  document.getElementById('pLogo').src = '';
+  document.getElementById('pLogo').style.display = 'none';
   updatePreview();
 }
 
-// ─────────────────────────────────────
+// ═══════════════════════════════════════
 // CURRENCY
-// ─────────────────────────────────────
+// ═══════════════════════════════════════
 function setCur(sym, code, btn) {
-  curSymbol = sym;
-  curCode = code;
+  curSymbol = sym; curCode = code;
   document.querySelectorAll('.cur-pill').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   updatePreview();
@@ -627,19 +778,17 @@ function fmt(n) {
   return curSymbol + n.toLocaleString('en', { minimumFractionDigits: dec, maximumFractionDigits: dec });
 }
 
-// ─────────────────────────────────────
+// ═══════════════════════════════════════
 // ITEMS
-// ─────────────────────────────────────
+// ═══════════════════════════════════════
 function addItem() {
   items.push({ id: Date.now() + Math.random(), name: '', qty: 1, price: 0 });
-  renderItems();
-  updatePreview();
+  renderItems(); updatePreview();
 }
 
 function removeItem(id) {
   items = items.filter(i => i.id !== id);
-  renderItems();
-  updatePreview();
+  renderItems(); updatePreview();
 }
 
 function renderItems() {
@@ -653,7 +802,7 @@ function renderItems() {
     row.innerHTML = `
       <input type="text" placeholder="${ph}" value="${esc(item.name)}" oninput="upItem(${item.id},'name',this.value)"/>
       <input type="number" min="1" value="${item.qty}" oninput="upItem(${item.id},'qty',this.value)"/>
-      <input type="number" min="0" step="0.01" value="${item.price || ''}" placeholder="0.00" oninput="upItem(${item.id},'price',this.value)"/>
+      <input type="number" min="0" step="0.01" value="${item.price||''}" placeholder="0.00" oninput="upItem(${item.id},'price',this.value)"/>
       <button class="btn-del" onclick="removeItem(${item.id})" title="Remove">✕</button>
     `;
     list.appendChild(row);
@@ -672,25 +821,23 @@ function upItem(id, field, val) {
 }
 
 function esc(s) {
-  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 }
 
-// ─────────────────────────────────────
+// ═══════════════════════════════════════
 // TOTALS
-// ─────────────────────────────────────
+// ═══════════════════════════════════════
 function calcTotals() {
-  const sub = items.reduce((s, i) => s + (i.qty * i.price), 0);
+  const sub = items.reduce((s,i) => s + (i.qty * i.price), 0);
   const pct = parseFloat(document.getElementById('discPct')?.value) || 0;
   const fix = parseFloat(document.getElementById('discFixed')?.value) || 0;
-  let disc = 0;
-  if (pct > 0) disc = sub * (pct / 100);
-  else if (fix > 0) disc = Math.min(fix, sub);
+  let disc = pct > 0 ? sub * (pct/100) : (fix > 0 ? Math.min(fix, sub) : 0);
   return { sub, disc, total: Math.max(0, sub - disc) };
 }
 
-// ─────────────────────────────────────
-// PREVIEW
-// ─────────────────────────────────────
+// ═══════════════════════════════════════
+// PREVIEW UPDATE
+// ═══════════════════════════════════════
 function updatePreview() {
   const t = T[lang];
   const biz = document.getElementById('bizName')?.value || 'Your Business Name';
@@ -704,11 +851,10 @@ function updatePreview() {
   setText('pTag', tag);
   setText('pClient', cContact ? `${cName} · ${cContact}` : cName);
   setText('pAddr', cAddr);
-  setText('pDate', new Date().toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' }));
+  setText('pDate', new Date().toLocaleDateString(lang==='fr'?'fr-FR':'en-GB',{day:'numeric',month:'short',year:'numeric'}));
   setText('pNote', note);
-  setText('pNum', `Receipt #${String(recNum).padStart(4, '0')}`);
+  setText('pNum', `Receipt #${String(recNum).padStart(4,'0')}`);
 
-  // Items in preview
   const pi = document.getElementById('pItems');
   pi.innerHTML = '';
   items.forEach(item => {
@@ -716,152 +862,152 @@ function updatePreview() {
     const d = document.createElement('div');
     d.className = 'r-item';
     d.innerHTML = `
-      <div>${esc(item.name) || t.unnamed}</div>
+      <div>${esc(item.name)||t.unnamed}</div>
       <div>${item.qty}</div>
       <div>${fmt(item.price)}</div>
-      <div><strong>${fmt(item.qty * item.price)}</strong></div>
+      <div><strong>${fmt(item.qty*item.price)}</strong></div>
     `;
     pi.appendChild(d);
   });
 
-  const { sub, disc, total } = calcTotals();
+  const {sub,disc,total} = calcTotals();
   setText('tSub', fmt(sub));
-  setText('tDisc', disc > 0 ? `–${fmt(disc)}` : '—');
+  setText('tDisc', disc>0?`–${fmt(disc)}`:'—');
   setText('tTotal', fmt(total));
   setText('pSub', fmt(sub));
-  setText('pDisc', disc > 0 ? `–${fmt(disc)}` : '—');
-  document.getElementById('pDiscRow').style.display = disc > 0 ? 'flex' : 'none';
+  setText('pDisc', disc>0?`–${fmt(disc)}`:'—');
+  document.getElementById('pDiscRow').style.display = disc>0?'flex':'none';
   setText('pTotal', fmt(total));
 }
 
-// ─────────────────────────────────────
+// ═══════════════════════════════════════
 // PDF GENERATION
-// ─────────────────────────────────────
+// ═══════════════════════════════════════
 async function generatePDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'mm', format: 'a5' });
-  const W = 148, M = 14;
-  let y = 0;
+  const {jsPDF} = window.jspdf;
+  const doc = new jsPDF({unit:'mm', format:'a5'});
+  const W=148, M=14;
+  let y=0;
   const t = T[lang];
-  const { sub, disc, total } = calcTotals();
+  const {sub,disc,total} = calcTotals();
 
-  // Header background
-  doc.setFillColor(45, 106, 79);
-  doc.rect(0, 0, W, 48, 'F');
+  // Get current theme primary color for PDF
+  const pColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#2D6A4F';
+  const {r:pr,g:pg,b:pb} = hexToRgb(pColor.length===7?pColor:'#2D6A4F');
 
-  // Logo
+  // Header
+  doc.setFillColor(pr,pg,pb);
+  doc.rect(0,0,W,48,'F');
+
   if (logoData) {
     try {
-      const ext = logoData.includes('image/png') ? 'PNG' : 'JPEG';
-      doc.addImage(logoData, ext, W / 2 - 12, 3, 24, 24, '', 'FAST');
-      y = 30;
-    } catch (e) { y = 12; }
-  } else { y = 12; }
+      const ext = logoData.includes('image/png')?'PNG':'JPEG';
+      doc.addImage(logoData,ext,W/2-12,3,24,24,'','FAST');
+      y=30;
+    } catch(e){y=12;}
+  } else {y=12;}
 
-  // Business name
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.setTextColor(255, 255, 255);
-  doc.text(document.getElementById('bizName').value || 'Business Name', W / 2, y + 5, { align: 'center' });
+  doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor(255,255,255);
+  doc.text((document.getElementById('bizName').value||'Business Name').substring(0,35), W/2, y+5, {align:'center'});
 
-  // Tagline
   const tag = document.getElementById('tagline').value;
-  if (tag) {
-    doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
-    doc.setTextColor(190, 225, 205);
-    doc.text(tag, W / 2, y + 12, { align: 'center' });
-  }
-
-  // Receipt number
-  doc.setFontSize(6.5); doc.setTextColor(170, 210, 190);
-  doc.text(`Receipt #${String(recNum).padStart(4, '0')}`, W / 2, 45, { align: 'center' });
-
-  y = 54;
+  if(tag){doc.setFontSize(7.5);doc.setFont('helvetica','normal');doc.setTextColor(190,225,205);doc.text(tag.substring(0,50),W/2,y+12,{align:'center'});}
+  doc.setFontSize(6.5);doc.setTextColor(170,210,190);
+  doc.text(`Receipt #${String(recNum).padStart(4,'0')}`,W/2,45,{align:'center'});
+  y=54;
 
   // Client block
-  doc.setFillColor(248, 248, 240);
-  doc.roundedRect(M, y, W - M * 2, 24, 3, 3, 'F');
-  doc.setTextColor(110, 100, 80); doc.setFontSize(6.5); doc.setFont('helvetica', 'bold');
-  doc.text(t.pClient.toUpperCase(), M + 3, y + 5);
-  doc.text(t.pDate.toUpperCase(), W / 2 + 2, y + 5);
-  doc.setFont('helvetica', 'normal'); doc.setTextColor(30, 20, 10); doc.setFontSize(8.5);
-  const cn = document.getElementById('clientName').value || '—';
-  const cc = document.getElementById('clientContact').value;
-  doc.text(cn + (cc ? `  ·  ${cc}` : ''), M + 3, y + 12);
-  doc.text(new Date().toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), W / 2 + 2, y + 12);
-  const addr = document.getElementById('clientAddr').value;
-  if (addr) {
-    doc.setFontSize(7.5); doc.setTextColor(110, 100, 80);
-    doc.text(addr.substring(0, 55), M + 3, y + 19);
-  }
-  y += 30;
+  doc.setFillColor(248,248,240);doc.roundedRect(M,y,W-M*2,24,3,3,'F');
+  doc.setTextColor(110,100,80);doc.setFontSize(6.5);doc.setFont('helvetica','bold');
+  doc.text(t.pClient.toUpperCase(),M+3,y+5);
+  doc.text(t.pDate.toUpperCase(),W/2+2,y+5);
+  doc.setFont('helvetica','normal');doc.setTextColor(30,20,10);doc.setFontSize(8.5);
+  const cn=document.getElementById('clientName').value||'—';
+  const cc=document.getElementById('clientContact').value;
+  doc.text((cn+(cc?`  ·  ${cc}`:'')).substring(0,45),M+3,y+12);
+  doc.text(new Date().toLocaleDateString(lang==='fr'?'fr-FR':'en-GB',{day:'numeric',month:'short',year:'numeric'}),W/2+2,y+12);
+  const addr=document.getElementById('clientAddr').value;
+  if(addr){doc.setFontSize(7.5);doc.setTextColor(110,100,80);doc.text(addr.substring(0,55),M+3,y+19);}
+  y+=30;
 
   // Items table header
-  doc.setFillColor(45, 106, 79);
-  doc.rect(M, y, W - M * 2, 7, 'F');
-  doc.setTextColor(255, 255, 255); doc.setFontSize(7); doc.setFont('helvetica', 'bold');
-  const cols = [M + 2, M + 60, M + 84, M + 108];
-  doc.text(t.phItem.toUpperCase(), cols[0], y + 5);
-  doc.text(t.phQty.toUpperCase(), cols[1], y + 5);
-  doc.text(t.phUnit.toUpperCase(), cols[2], y + 5);
-  doc.text(t.phTotal.toUpperCase(), cols[3], y + 5);
-  y += 10;
+  doc.setFillColor(pr,pg,pb);doc.rect(M,y,W-M*2,7,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(7);doc.setFont('helvetica','bold');
+  const cols=[M+2,M+60,M+84,M+108];
+  doc.text(t.phItem.toUpperCase(),cols[0],y+5);
+  doc.text(t.phQty.toUpperCase(),cols[1],y+5);
+  doc.text(t.phUnit.toUpperCase(),cols[2],y+5);
+  doc.text(t.phTotal.toUpperCase(),cols[3],y+5);
+  y+=10;
 
   // Items rows
-  doc.setFont('helvetica', 'normal');
-  items.forEach((item, idx) => {
-    if (!item.name && !item.price) return;
-    if (idx % 2 === 0) { doc.setFillColor(250, 248, 240); doc.rect(M, y - 4, W - M * 2, 8, 'F'); }
-    doc.setTextColor(30, 20, 10); doc.setFontSize(8);
-    doc.text((item.name || t.unnamed).substring(0, 28), cols[0], y);
-    doc.text(String(item.qty), cols[1], y);
-    doc.text(fmt(item.price), cols[2], y);
-    doc.setFont('helvetica', 'bold');
-    doc.text(fmt(item.qty * item.price), cols[3], y);
-    doc.setFont('helvetica', 'normal');
-    y += 9;
+  doc.setFont('helvetica','normal');
+  items.forEach((item,idx) => {
+    if(!item.name&&!item.price) return;
+    if(idx%2===0){doc.setFillColor(250,248,240);doc.rect(M,y-4,W-M*2,8,'F');}
+    doc.setTextColor(30,20,10);doc.setFontSize(8);
+    doc.text((item.name||t.unnamed).substring(0,26),cols[0],y);
+    doc.text(String(item.qty),cols[1],y);
+    doc.text(fmt(item.price).substring(0,12),cols[2],y);
+    doc.setFont('helvetica','bold');
+    doc.text(fmt(item.qty*item.price).substring(0,12),cols[3],y);
+    doc.setFont('helvetica','normal');
+    y+=9;
   });
 
-  y += 4;
-  const tx = W - M - 2;
-  doc.setDrawColor(200, 190, 170); doc.line(M, y, W - M, y); y += 6;
-  doc.setFontSize(8); doc.setTextColor(100, 100, 80);
-  doc.text(t.subtotal, M + 2, y); doc.setTextColor(30, 20, 10); doc.text(fmt(sub), tx, y, { align: 'right' }); y += 7;
-
-  if (disc > 0) {
-    doc.setTextColor(100, 100, 80); doc.text(t.discLbl, M + 2, y);
-    doc.setTextColor(180, 50, 50); doc.text(`–${fmt(disc)}`, tx, y, { align: 'right' }); y += 7;
+  y+=4;
+  const tx=W-M-2;
+  doc.setDrawColor(200,190,170);doc.line(M,y,W-M,y);y+=6;
+  doc.setFontSize(8);doc.setTextColor(100,100,80);
+  doc.text(t.subtotal,M+2,y);doc.setTextColor(30,20,10);doc.text(fmt(sub),tx,y,{align:'right'});y+=7;
+  if(disc>0){
+    doc.setTextColor(100,100,80);doc.text(t.discLbl,M+2,y);
+    doc.setTextColor(180,50,50);doc.text(`–${fmt(disc)}`,tx,y,{align:'right'});y+=7;
   }
 
-  // Grand total bar
-  doc.setFillColor(45, 106, 79);
-  doc.roundedRect(M, y, W - M * 2, 10, 2, 2, 'F');
-  doc.setTextColor(255, 255, 255); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
-  doc.text(t.totalDue, M + 3, y + 7);
-  doc.text(fmt(total), tx, y + 7, { align: 'right' });
-  y += 16;
+  // Grand total
+  doc.setFillColor(pr,pg,pb);doc.roundedRect(M,y,W-M*2,10,2,2,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(10);doc.setFont('helvetica','bold');
+  doc.text(t.totalDue,M+3,y+7);doc.text(fmt(total),tx,y+7,{align:'right'});
+  y+=16;
 
   // Note
-  const note = document.getElementById('receiptNote').value;
-  if (note) {
-    doc.setFillColor(255, 243, 214);
-    doc.roundedRect(M, y, W - M * 2, 11, 2, 2, 'F');
-    doc.setTextColor(100, 80, 30); doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
-    doc.text(note.substring(0, 80), W / 2, y + 7, { align: 'center' });
-    y += 16;
+  const note=document.getElementById('receiptNote').value;
+  if(note){
+    doc.setFillColor(255,243,214);doc.roundedRect(M,y,W-M*2,11,2,2,'F');
+    doc.setTextColor(100,80,30);doc.setFontSize(7.5);doc.setFont('helvetica','normal');
+    doc.text(note.substring(0,80),W/2,y+7,{align:'center'});
+    y+=16;
   }
 
+  // ── SIGNATURE & STAMP ──
+  y+=4;
+  doc.setDrawColor(180,170,150);doc.line(M,y,W-M,y);y+=6;
+  const halfW=(W-M*2)/2-5;
+
+  // Signature box
+  doc.setDrawColor(100,100,100);doc.line(M,y+22,M+halfW,y+22);
+  doc.setTextColor(120,110,90);doc.setFontSize(7);doc.setFont('helvetica','bold');
+  doc.text(t.signLabel.toUpperCase(),M+halfW/2,y+28,{align:'center'});
+
+  // Stamp circle
+  const stampX=M+halfW+10+halfW/2, stampY=y+14;
+  doc.setDrawColor(150,140,120);doc.setLineDashPattern([1.5,1.5],0);
+  doc.circle(stampX,stampY,13,'S');
+  doc.setLineDashPattern([],0);
+  doc.setTextColor(160,150,130);doc.setFontSize(6.5);
+  doc.text(t.stampLabel.toUpperCase(),stampX,y+30,{align:'center'});
+  y+=36;
+
   // Footer
-  doc.setFontSize(6.5); doc.setTextColor(160, 150, 130);
-  doc.text('Receipt App', W / 2, y + 4, { align: 'center' });
+  doc.setFontSize(6.5);doc.setTextColor(160,150,130);
+  doc.text('Receipt App',W/2,y+4,{align:'center'});
 
-  // Save
-  const fname = `Receipt-${String(recNum).padStart(4, '0')}-${(document.getElementById('clientName').value || 'Client').replace(/\s+/g, '_')}.pdf`;
+  const fname=`Receipt-${String(recNum).padStart(4,'0')}-${(document.getElementById('clientName').value||'Client').replace(/\s+/g,'_')}.pdf`;
   doc.save(fname);
-
   recNum++;
-  localStorage.setItem('ra_num', recNum);
-  setText('pNum', `Receipt #${String(recNum).padStart(4, '0')}`);
+  localStorage.setItem('ra_num',recNum);
+  setText('pNum',`Receipt #${String(recNum).padStart(4,'0')}`);
 }
 
 // START
