@@ -494,8 +494,8 @@ textarea{resize:vertical;min-height:58px}
 // LOGIN  hash = SHA-256("RE-26-CM")
 // UNLOCK hash = SHA-256("UNLOCK-500")
 // ════════════════════════════════════════════
-const LOGIN_HASH  = '497b7952796e95277839b26685f6797284617c674f7626775960093845667e7c';
-const UNLOCK_HASH = 'b21e7b64e7e8b3c2d0f4a96c5d08bfa38299d2a4c6e0b1f3a7952d6e408c5f91';
+const LOGIN_HASH  = '1229eab6bec6d2a112cf55a0ec2232f45b51092c57b668e106ae4d8eece024dd';
+const UNLOCK_HASH = '21cac4cfa4642b680e108911c366aff70d967f1a1e751abd34ec7bdd0784af7c';
 
 // ════ State ════
 let curSymbol='₦', curCode='NGN';
@@ -740,7 +740,7 @@ function checkLogin(){
   loadSavedTheme();
   applyLang();
   // Version stamp — if app was updated, force re-login so new hash is validated
-  const APP_VERSION = 'v3-sha256';
+  const APP_VERSION = 'v4-sha256-fixed';
   if(localStorage.getItem('ra_version') !== APP_VERSION){
     localStorage.removeItem('ra_auth');
     localStorage.setItem('ra_version', APP_VERSION);
