@@ -640,7 +640,7 @@ function handleSubTap(){
 }
 
 async function doUnlock(){
-  const val=document.getElementById('unlockInput').value.trim();
+  const val=document.getElementById('unlockInput').value.trim().toUpperCase();
   const hash=await sha256(val);
   if(hash===UNLOCK_HASH){
     localStorage.setItem('ra_count','0');
@@ -704,7 +704,7 @@ function loadSavedTheme(){
 // LOGIN (SHA-256)
 // ════════════════════════════════════════════
 async function doLogin(){
-  const val=document.getElementById('loginInput').value.trim();
+  const val=document.getElementById('loginInput').value.trim().toUpperCase();
   const hash=await sha256(val);
   if(hash===LOGIN_HASH){
     localStorage.setItem('ra_auth','yes');
@@ -740,7 +740,7 @@ function checkLogin(){
   loadSavedTheme();
   applyLang();
   // Version stamp — if app was updated, force re-login so new hash is validated
-  const APP_VERSION = 'v4-sha256-fixed';
+  const APP_VERSION = 'v5-case-insensitive';
   if(localStorage.getItem('ra_version') !== APP_VERSION){
     localStorage.removeItem('ra_auth');
     localStorage.setItem('ra_version', APP_VERSION);
